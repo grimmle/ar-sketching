@@ -26,6 +26,10 @@
 # Visual Studio cache directory
 .vs/
 
+# VSCode
+.vscode
+.vsconfig
+
 # Gradle cache directory
 .gradle/
 
@@ -70,5 +74,8 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+
+# other
+InitCodeMarker
 .DS_Store
-.vscode
