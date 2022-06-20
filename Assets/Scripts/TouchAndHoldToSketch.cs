@@ -3,6 +3,7 @@
 namespace Sketching
 {
     using UnityEngine;
+    using System.Collections.Generic;
     using UnityEngine.EventSystems;
     using VRSketchingGeometry.SketchObjectManagement;
     using VRSketchingGeometry.Commands;
@@ -34,6 +35,7 @@ namespace Sketching
         private bool canStartTouchManipulation = false;
         private bool startNewSketchObject = false;
 
+        PointerEventData data = new PointerEventData(EventSystem.current);
 
 
         public void Start()
@@ -117,9 +119,12 @@ namespace Sketching
         private bool CanStartTouchManipulation(Touch currentTouch)
         {
             // Should not handle input if the player is pointing on UI or if the AR session is not tracking the environment.
-            if (ARSession.state != ARSessionState.SessionTracking || EventSystem.current.IsPointerOverGameObject(currentTouch.fingerId))
+            var hits = new List<RaycastResult>();
+            data.position = currentTouch.position;
+            EventSystem.current.RaycastAll(data, hits);
+            if (ARSession.state != ARSessionState.SessionTracking || EventSystem.current.IsPointerOverGameObject(currentTouch.fingerId) || hits.Count > 0)
             {
-                Debug.Log("Not starting tap gesture");
+                Debug.Log("----------- Not starting tap gesture");
                 return false;
             }
             return true;
