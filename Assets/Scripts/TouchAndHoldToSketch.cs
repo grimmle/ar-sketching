@@ -23,7 +23,7 @@ namespace Sketching
         public GameObject pointMarker;
         public SketchWorld SketchWorld;
 
-        public float lineDiameter;
+        public static float lineDiameter = 0.02f;
 
         // The anchor that all sketch objects are attached to
         private ARAnchor worldAnchor;

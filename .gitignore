@@ -79,3 +79,5 @@ crashlytics-build.properties
 # other
 InitCodeMarker
 .DS_Store
+*.pdf
+*.pdf.meta
