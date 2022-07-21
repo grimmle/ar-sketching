@@ -25,7 +25,7 @@ public class ButtonHandler : MonoBehaviour
         // SketchWorld = Instantiate(Defaults.SketchWorldPrefab).GetComponent<SketchWorld>();
 
         //Serialize the SketchWorld to a XML file
-        SavePath = System.IO.Path.Combine(Application.persistentDataPath, "YourSketch.xml");
+        SavePath = System.IO.Path.Combine(Application.persistentDataPath, "Sketch-" + System.DateTime.UtcNow.Month + "-" + System.DateTime.UtcNow.Day + "-" + System.DateTime.UtcNow.Minute + "-" + System.DateTime.UtcNow.Second + ".xml");
         SketchWorld.SaveSketchWorld(SavePath);
 
 
@@ -37,8 +37,17 @@ public class ButtonHandler : MonoBehaviour
     {
         //Create another SketchWorld and load the serialized SketchWorld
         // DeserializedSketchWorld = Instantiate(Defaults.SketchWorldPrefab).GetComponent<SketchWorld>();
-        SavePath = System.IO.Path.Combine(Application.persistentDataPath, "YourSketch.xml");
-        // SketchWorld = Instantiate(Defaults.SketchWorldPrefab).GetComponent<SketchWorld>();
+        DirectoryInfo d = new DirectoryInfo(Application.persistentDataPath);
+        foreach (var file in d.GetFiles("*.xml"))
+        {
+            Debug.Log("#######################");
+            Debug.Log("file.Name");
+            Debug.Log(file.Name);
+            Debug.Log("file.DirectoryName");
+            Debug.Log(file.DirectoryName);
+            SavePath = System.IO.Path.Combine(Application.persistentDataPath, file.Name);
+            // SavePath = file.DirectoryName;
+        }
         SketchWorld.LoadSketchWorld(SavePath);
         // Debug.Log(DeserializedSketchWorld.ToString());
         // Debug.Log(SketchWorld.ToString());
