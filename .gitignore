@@ -81,3 +81,5 @@ InitCodeMarker
 .DS_Store
 *.pdf
 *.pdf.meta
+*.zip
+*.tgz

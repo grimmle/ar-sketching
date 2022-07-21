@@ -1,15 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using VRSketchingGeometry;
 using VRSketchingGeometry.Commands;
 using VRSketchingGeometry.SketchObjectManagement;
 using Sketching;
+using System.Threading.Tasks;
 
 public class ButtonHandler : MonoBehaviour
 {
     TouchAndHoldToSketch touchScript;
+    SpatialAnchorsSetup asaScript;
     [SerializeField] GameObject Main;
+    [SerializeField] GameObject ASA;
 
     public SketchWorld SketchWorld;
     public DefaultReferences Defaults;
@@ -19,6 +23,7 @@ public class ButtonHandler : MonoBehaviour
     void Awake()
     {
         touchScript = Main.GetComponent<TouchAndHoldToSketch>();
+        asaScript = ASA.GetComponent<SpatialAnchorsSetup>();
     }
     public void Save()
     {
@@ -49,8 +54,6 @@ public class ButtonHandler : MonoBehaviour
             // SavePath = file.DirectoryName;
         }
         SketchWorld.LoadSketchWorld(SavePath);
-        // Debug.Log(DeserializedSketchWorld.ToString());
-        // Debug.Log(SketchWorld.ToString());
         // DeserializedSketchWorld.transform.position += new Vector3(5, 0, 0);
 
     }
@@ -68,6 +71,41 @@ public class ButtonHandler : MonoBehaviour
     public void Redo()
     {
         touchScript.RestoreLastDeletedSketchObject();
+    }
+
+    public void Clear()
+    {
+        // foreach (var obj in Resources.FindObjectsOfTypeAll(typeof(LineSketchObject)))
+        // {
+        //     Debug.Log(obj.name);
+        //     Destroy(obj);
+        // }
+        // Destroy(SketchWorld);
+        SketchWorld.ActiveSketchWorld = Instantiate(Defaults.SketchWorldPrefab).GetComponent<SketchWorld>();
+    }
+
+    public void StartASASession()
+    {
+        Debug.Log("StartASASession");
+        asaScript.SetupCloudSessionAsync();
+    }
+
+    public void SaveAnchor()
+    {
+        Debug.Log("SaveAnchorToCloudAsync");
+        asaScript.SaveAnchorToCloudAsync();
+    }
+
+    public void StopASASession()
+    {
+        Debug.Log("StopCloudSessionAsync");
+        asaScript.StopCloudSessionAsync();
+    }
+
+    public void QueryAnchors()
+    {
+        Debug.Log("FindNearbyAnchors");
+        // asaScript.FindNearbyAnchors();
     }
 
 }
