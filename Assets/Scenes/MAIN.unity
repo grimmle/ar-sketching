@@ -826,7 +826,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: STOP SESSION
+  m_text: SAVE ANCHOR
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2589,7 +2589,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spatialAnchorManager: {fileID: 1207951679}
-  anchoredObjectPrefab: {fileID: 919132149155446097, guid: de4da3906a001624fabcc7838ddf2eb4,
+  anchoredObjectPrefab: {fileID: 580457694890696453, guid: ef181b7b6127a457a8e22edbfe072361,
     type: 3}
 --- !u!1 &1317005572
 GameObject:
@@ -4035,7 +4035,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2002630292}
         m_TargetAssemblyTypeName: ButtonHandler, Assembly-CSharp
-        m_MethodName: StopASASession
+        m_MethodName: SaveAnchor
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

@@ -30,9 +30,11 @@ public class ButtonHandler : MonoBehaviour
         // SketchWorld = Instantiate(Defaults.SketchWorldPrefab).GetComponent<SketchWorld>();
 
         //Serialize the SketchWorld to a XML file
-        SavePath = System.IO.Path.Combine(Application.persistentDataPath, "Sketch-" + System.DateTime.UtcNow.Month + "-" + System.DateTime.UtcNow.Day + "-" + System.DateTime.UtcNow.Minute + "-" + System.DateTime.UtcNow.Second + ".xml");
+        SavePath = System.IO.Path.Combine(Application.persistentDataPath, "Sketch-" + System.DateTime.UtcNow.Year + "-" + System.DateTime.UtcNow.Month + "-" + System.DateTime.UtcNow.Day + "-" + System.DateTime.UtcNow.Minute + "-" + System.DateTime.UtcNow.Second + ".xml");
         SketchWorld.SaveSketchWorld(SavePath);
 
+        Debug.Log("SaveAnchorToCloudAsync");
+        asaScript.SaveAnchorToCloudAsync();
 
         //Export the SketchWorld as an OBJ file
         // SketchWorld.ExportSketchWorldToDefaultPath();
