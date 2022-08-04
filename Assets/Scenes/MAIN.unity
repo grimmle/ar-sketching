@@ -304,7 +304,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
-  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &25264337
@@ -671,7 +670,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
-  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &113383492
@@ -826,7 +824,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: SAVE ANCHOR
+  m_text: 'PLACE PROXY
+
+    ANCHOR'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1492,7 +1492,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &563685993
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1527,7 +1527,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
-  ASA: {fileID: 1207951677}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &563685995
@@ -1866,7 +1865,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
-  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!1 &820867065
@@ -2591,6 +2589,7 @@ MonoBehaviour:
   spatialAnchorManager: {fileID: 1207951679}
   anchoredObjectPrefab: {fileID: 580457694890696453, guid: ef181b7b6127a457a8e22edbfe072361,
     type: 3}
+  currentAnchorIdToSave: 
 --- !u!1 &1317005572
 GameObject:
   m_ObjectHideFlags: 0
@@ -2645,7 +2644,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
-  ASA: {fileID: 1207951677}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &1317005575
@@ -2803,12 +2801,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9d0919807eaa1947936953676e285e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ColorPicker: {fileID: 410277375}
   Camera: {fileID: 22732920}
+  SketchWorld: {fileID: 99777758}
   SketchObjectPrefab: {fileID: 1524500983091648832, guid: 7ee00a79cbb48fc44b9ada2a7fac529e,
     type: 3}
-  pointMarker: {fileID: 1662533778}
-  SketchWorld: {fileID: 99777758}
+  ColorPicker: {fileID: 410277375}
+  BrushMarker: {fileID: 1662533778}
 --- !u!4 &1409983263
 Transform:
   m_ObjectHideFlags: 0
@@ -2878,7 +2876,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
-  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &1416699194
@@ -3029,7 +3026,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
-  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &1543526927
@@ -3744,7 +3740,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
-  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &1754269621
@@ -3946,7 +3941,7 @@ GameObject:
   - component: {fileID: 2002630293}
   - component: {fileID: 2002630292}
   m_Layer: 5
-  m_Name: Stop Session Button
+  m_Name: Place Proxy Anchor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3986,7 +3981,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
-  ASA: {fileID: 1207951677}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &2002630293
@@ -4035,7 +4029,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2002630292}
         m_TargetAssemblyTypeName: ButtonHandler, Assembly-CSharp
-        m_MethodName: SaveAnchor
+        m_MethodName: SetAnchorProxyForRelativeSketching
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4137,7 +4131,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
-  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &2019469738
@@ -4386,7 +4379,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
-  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &2090104822

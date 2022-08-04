@@ -1,180 +1,163 @@
+//some credit for basic sketching implementation using VRSketchingGeometry to:
 //https://github.com/tterpi/Sketchar
 
-namespace Sketching
-{
+namespace Sketching {
     using UnityEngine;
-    using System.Collections.Generic;
     using UnityEngine.EventSystems;
+    using UnityEngine.XR.ARFoundation;
+    using System.Collections.Generic;
     using VRSketchingGeometry.SketchObjectManagement;
     using VRSketchingGeometry.Commands;
     using VRSketchingGeometry.Commands.Line;
-    using UnityEngine.XR.ARFoundation;
 
-    // Controls the creation and deletion of line sketch objects via touch gestures.
-    public class TouchAndHoldToSketch : MonoBehaviour
-    {
-        // Color Picker to extract current color
-        public ColorPicker ColorPicker;
-        // The first-person camera being used to render the passthrough camera image (i.e. AR background).
+    public class TouchAndHoldToSketch : MonoBehaviour {
         public Camera Camera;
-        // Prefab that is instatiated to create a new line
-        public GameObject SketchObjectPrefab;
-        // Shows were new control points are added
-        public GameObject pointMarker;
         public SketchWorld SketchWorld;
+        public GameObject SketchObjectPrefab;
+
+        // color picker to extract current color
+        public ColorPicker ColorPicker;
+        // indicator for where new objects are drawn from
+        public GameObject BrushMarker;
+        // anchor in 3D space used for relative mid-air sketching
+        private GameObject currentProxyAnchor;
+        private GameObject currentProxyAnchorNull;
+        private bool isSketchingRelativelyInSpace = false;
 
         public static float lineDiameter = 0.02f;
 
-        // The anchor that all sketch objects are attached to
         private ARAnchor worldAnchor;
-        // The line sketch object that is currently being created.
         private LineSketchObject currentLineSketchObject;
-        // Used to check if the touch interaction should be performed
-        private CommandInvoker Invoker;
+        private CommandInvoker invoker;
 
-        private bool canStartTouchManipulation = false;
+        private bool isValidTouch = false;
         private bool startNewSketchObject = false;
 
-        PointerEventData data = new PointerEventData(EventSystem.current);
+        // needed for new input system
+        private PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
 
 
-        public void Start()
-        {
+        public void Start() {
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
-            //set up marker in the center of the screen
-            pointMarker.transform.SetParent(Camera.transform);
-            pointMarker.transform.localPosition = Vector3.forward * .3f;
-            Invoker = new CommandInvoker();
+            BrushMarker.transform.SetParent(Camera.transform);
+            BrushMarker.transform.localPosition = Vector3.forward * 0.3f;
+            invoker = new CommandInvoker();
         }
 
-        public void Update()
-        {
-            //handle the touch input
-            if (Input.touchCount > 0)
-            {
+        public void Update() {
+            if (Input.touchCount > 0) {
                 Touch currentTouch = Input.GetTouch(0);
-                if (currentTouch.phase == TouchPhase.Began)
-                {
-                    canStartTouchManipulation = CanStartTouchManipulation(currentTouch);
+                if (currentTouch.phase == TouchPhase.Began) {
+                    isValidTouch = IsValidTouch(currentTouch);
                 }
 
-                if (canStartTouchManipulation)
-                {
-                    if (currentTouch.phase == TouchPhase.Began)
-                    {
+                if (isValidTouch) {
+                    if (currentTouch.phase == TouchPhase.Began) {
                         startNewSketchObject = true;
-                    }
-                    else if (currentTouch.phase == TouchPhase.Stationary || (currentTouch.phase == TouchPhase.Moved && startNewSketchObject == false && currentLineSketchObject.getNumberOfControlPoints() > 0))
-                    {
-
-                        if (startNewSketchObject)
-                        {
+                    } else if (currentTouch.phase == TouchPhase.Stationary || (currentTouch.phase == TouchPhase.Moved && startNewSketchObject == false && currentLineSketchObject.getNumberOfControlPoints() > 0)) {
+                        if (startNewSketchObject) {
                             //create a new sketch object
                             CreateNewLineSketchObject();
                             startNewSketchObject = false;
+                            currentProxyAnchorNull = new GameObject();
+                            currentProxyAnchorNull.transform.position = currentProxyAnchor.transform.position;
+                            Debug.Log($"PROXY ANCHOR NULL CREATED AT {currentProxyAnchorNull.transform.position.ToString()}");
+                            currentProxyAnchorNull.transform.SetParent(Camera.transform);
+                        } else if (currentLineSketchObject) {
+                            //add new control point according to current device position or active proxy
+                            if (isSketchingRelativelyInSpace && currentProxyAnchorNull != null) {
+                                // currentProxyAnchor.transform.rotation = Camera.transform.rotation;
+                                Debug.Log($"currentProxyAnchorNull {currentProxyAnchorNull.transform.position.ToString()}");
+                                // new AddControlPointContinuousCommand(currentLineSketchObject, currentProxyAnchor.transform.position + localPos).Execute();
+                                new AddControlPointContinuousCommand(currentLineSketchObject, currentProxyAnchorNull.transform.position).Execute();
+                            } else {
+                                new AddControlPointContinuousCommand(currentLineSketchObject, BrushMarker.transform.position).Execute();
+                            }
                         }
-                        else if (currentLineSketchObject)
-                        {
-                            //Add new control point according to current device position
-                            new AddControlPointContinuousCommand(currentLineSketchObject, Camera.transform.position + Camera.transform.forward * .3f)
-                                .Execute();
-                        }
-                    }
-                    else if (currentTouch.phase == TouchPhase.Ended)
-                    {
-                        //if an empty sketch object was created, delete it
-                        if (startNewSketchObject == false && currentLineSketchObject.getNumberOfControlPoints() < 1)
-                        {
+                    } else if (currentTouch.phase == TouchPhase.Ended) {
+                        //delete sketch object if empty
+                        if (startNewSketchObject == false && currentLineSketchObject.getNumberOfControlPoints() < 1) {
                             Destroy(currentLineSketchObject.gameObject);
                             currentLineSketchObject = null;
                         }
 
-                        //if a swipe occured and no new sketch object was created, delete the last sketch object
-                        if (((startNewSketchObject == false && currentLineSketchObject == null) || startNewSketchObject == true))
-                        {
-                            if ((currentTouch.position - currentTouch.rawPosition).magnitude > Screen.width * 0.05)
-                            {
-                                if (Vector2.Dot(Vector2.left, (currentTouch.position - currentTouch.rawPosition)) > 0)
-                                {
-                                    DeleteLastLineSketchObject();
-                                }
-                                else if (Vector2.Dot(Vector2.right, (currentTouch.position - currentTouch.rawPosition)) > 0)
-                                {
-                                    RestoreLastDeletedSketchObject();
-                                }
-                            }
-                        }
-                        else
-                        {
-                            PostProcessSketchObject();
-                        }
-
-                        canStartTouchManipulation = false;
+                        PostProcessSketchObject();
+                        isValidTouch = false;
                     }
                 }
             }
         }
 
-        // Checks if a touch interaction can be started
-        private bool CanStartTouchManipulation(Touch currentTouch)
-        {
-            // Should not handle input if the player is pointing on UI or if the AR session is not tracking the environment.
+        private bool IsValidTouch(Touch currentTouch) {
+            //ignore touch if it is on UI or the AR session is not tracking the environment
             var hits = new List<RaycastResult>();
-            data.position = currentTouch.position;
-            EventSystem.current.RaycastAll(data, hits);
-            if (ARSession.state != ARSessionState.SessionTracking || EventSystem.current.IsPointerOverGameObject(currentTouch.fingerId) || hits.Count > 0)
-            {
-                Debug.Log("----------- Not starting tap gesture");
+            pointerEventData.position = currentTouch.position;
+            EventSystem.current.RaycastAll(pointerEventData, hits);
+            if (ARSession.state != ARSessionState.SessionTracking || EventSystem.current.IsPointerOverGameObject(currentTouch.fingerId) || hits.Count > 0) {
+                // Debug.Log("Invalid Touch!");
                 return false;
             }
             return true;
         }
 
-        // Instatiates a new LineSketchObject and parants it to the world anchor
-        private void CreateNewLineSketchObject()
-        {
-            //see if an anchor exists
-            if (!worldAnchor)
-            {
+        private void CreateNewLineSketchObject() {
+            if (!worldAnchor) {
+                //create world anchor
                 GameObject anchor = new GameObject();
                 anchor.name = "WorldAnchor";
                 worldAnchor = anchor.AddComponent<ARAnchor>();
                 SketchWorld.transform.SetParent(worldAnchor.transform);
             }
 
-            // Instantiate sketch object as child of anchor
+            //instantiate sketch object and set configuration
             var gameObject = Instantiate(SketchObjectPrefab);
             var renderer = gameObject.GetComponent<Renderer>();
             renderer.material.color = ColorPicker.color;
             currentLineSketchObject = gameObject.GetComponent<LineSketchObject>();
+            if (isSketchingRelativelyInSpace && currentProxyAnchor != null) {
+                gameObject.transform.position = currentProxyAnchor.transform.position;
+                gameObject.transform.SetParent(currentProxyAnchor.transform);
+            }
+            Debug.Log($"NEW SKETCH OBJECT CREATED AT {gameObject.transform.position.ToString()}");
+            // Debug.Log($"LINE OBJECT OF THAT NEW SKETCH OBJ CREATED AT {currentLineSketchObject.transform.position.ToString()}");
             currentLineSketchObject.minimumControlPointDistance = .02f;
             currentLineSketchObject.SetLineDiameter(lineDiameter);
             currentLineSketchObject.SetInterpolationSteps(5);
         }
 
-        // Refines the latest sketch object
-        private void PostProcessSketchObject()
-        {
-            //add the current line sketch object to the stack
-            if (currentLineSketchObject != null && currentLineSketchObject.gameObject != null)
-            {
-                Invoker.ExecuteCommand(new AddObjectToSketchWorldRootCommand(currentLineSketchObject, SketchWorld));
-                if (currentLineSketchObject.getNumberOfControlPoints() > 2)
-                {
+        //refines the latest sketch object
+        private void PostProcessSketchObject() {
+            if (currentLineSketchObject != null && currentLineSketchObject.gameObject != null) {
+                invoker.ExecuteCommand(new AddObjectToSketchWorldRootCommand(currentLineSketchObject, SketchWorld));
+                if (currentLineSketchObject.getNumberOfControlPoints() > 2) {
                     new RefineMeshCommand(currentLineSketchObject).Execute();
                 }
             }
         }
 
-        // Delete the last line sketch object using the Invoker.
-        public void DeleteLastLineSketchObject()
-        {
-            Invoker.Undo();
+        public void DeleteLastLineSketchObject() {
+            invoker.Undo();
         }
 
-        public void RestoreLastDeletedSketchObject()
-        {
-            Invoker.Redo();
+        public void RestoreLastDeletedSketchObject() {
+            invoker.Redo();
         }
+
+        public void SetAnchorProxy() {
+            // set proxy anchor to current brushMarker position
+            currentProxyAnchor = Instantiate(BrushMarker);
+            currentProxyAnchor.transform.position = BrushMarker.transform.position;
+            Debug.Log($"PROXY ANCHOR CREATED AT {BrushMarker.transform.position.ToString()}");
+            // BrushMarker.SetActive(false);
+
+            isSketchingRelativelyInSpace = true;
+        }
+
+        public void DisableRelativeSketching() {
+            Debug.Log("Disabled relative sketching");
+            isSketchingRelativelyInSpace = false;
+            // BrushMarker.SetActive(true);
+        }
+
     }
 }

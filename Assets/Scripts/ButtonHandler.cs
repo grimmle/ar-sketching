@@ -110,4 +110,8 @@ public class ButtonHandler : MonoBehaviour
         // asaScript.FindNearbyAnchors();
     }
 
+    public void SetAnchorProxyForRelativeSketching() {
+        touchScript.SetAnchorProxy();
+    }
+
 }
