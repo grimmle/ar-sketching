@@ -27,11 +27,14 @@ namespace Sketching {
         //anchor in 3D space used for relative mid-air sketching
         private GameObject currentProxyAnchor;
         private GameObject currentProxyAnchorNull;
+        private GameObject currentProxyAnchorBrushMarker;
         private bool isSketchingRelativelyInSpace = false;
+        private bool isMoving = false;
 
         //BUTTONS
         private GameObject toggleSpaceBtn;
         private GameObject setProxyAnchorBtn;
+        private GameObject moveBtn;
 
         public static float lineDiameter = 0.02f;
 
@@ -42,9 +45,10 @@ namespace Sketching {
         private bool isValidTouch = false;
         private bool startNewSketchObject = false;
 
-        // needed for new input system
+        //needed for new input system
         private PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
 
+        Color purple = new Color(0.66f, 0.12f, 0.96f);
 
         public void Start() {
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
@@ -55,6 +59,8 @@ namespace Sketching {
             toggleSpaceBtn = GameObject.Find("Toggle Sketching Space");
             setProxyAnchorBtn = GameObject.Find("Set Proxy Anchor");
             setProxyAnchorBtn.SetActive(false);
+            moveBtn = GameObject.Find("Move Freely");
+            moveBtn.SetActive(false);
         }
 
         public void Update() {
@@ -72,10 +78,11 @@ namespace Sketching {
                             //create a new sketch object
                             CreateNewLineSketchObject();
                             startNewSketchObject = false;
-                            currentProxyAnchorNull = new GameObject();
-                            currentProxyAnchorNull.transform.position = currentProxyAnchor.transform.position;
-                            Debug.Log($"PROXY ANCHOR NULL CREATED AT {currentProxyAnchorNull.transform.position.ToString()}");
-                            currentProxyAnchorNull.transform.SetParent(Camera.transform);
+
+                            if (currentProxyAnchorNull == null || !isMoving) {
+                                currentProxyAnchorNull.transform.position = currentProxyAnchor.transform.position;
+                                Debug.Log($"PROXY NULL MOVED BACK TO ORIGINAL ANCHOR POSIITON {currentProxyAnchorNull.transform.position.ToString()}");
+                            }
                         } else if (currentLineSketchObject) {
                             //add new control point according to current device position or active proxy
                             if (isSketchingRelativelyInSpace && currentProxyAnchorNull != null) {
@@ -157,27 +164,34 @@ namespace Sketching {
 
         public void SetAnchorProxy() {
             // set proxy anchor to current brushMarker position
-            if (currentProxyAnchor == null) {
+            if (currentProxyAnchor == null && currentProxyAnchorBrushMarker == null) {
                 currentProxyAnchor = Instantiate(proxyAnchorPrefab, BrushMarker.transform.position, Quaternion.identity);
                 Debug.Log($"PROXY ANCHOR CREATED AT {BrushMarker.transform.position.ToString()}");
+
+                currentProxyAnchorNull = Instantiate(BrushMarker, currentProxyAnchor.transform.position, BrushMarker.transform.rotation);
+                Debug.Log($"PROXY ANCHOR NULL CREATED AT {currentProxyAnchorNull.transform.position.ToString()}");
+                currentProxyAnchorNull.transform.SetParent(Camera.transform);
             } else {
                 currentProxyAnchor.transform.position = BrushMarker.transform.position;
+                currentProxyAnchorNull.transform.position = BrushMarker.transform.position;
                 Debug.Log($"PROXY ANCHOR MOVED TO {BrushMarker.transform.position.ToString()}");
             }
-            // currentProxyAnchor.transform.position = BrushMarker.transform.position;
             isSketchingRelativelyInSpace = true;
         }
 
+        public bool IsSketchingRelativelyInSpace() {
+            return isSketchingRelativelyInSpace;
+        }
         public void EnableRelativeSketching() {
             isSketchingRelativelyInSpace = true;
             if (currentProxyAnchor == null) SetAnchorProxy();
             BrushMarker.SetActive(false);
 
             toggleSpaceBtn.GetComponentInChildren<TMP_Text>().text = "RELATIVE";
-            Color purple = new Color(0.66f, 0.12f, 0.96f);
             toggleSpaceBtn.GetComponent<Image>().color = purple;
 
             setProxyAnchorBtn.SetActive(true);
+            moveBtn.SetActive(true);
         }
         public void DisableRelativeSketching() {
             isSketchingRelativelyInSpace = false;
@@ -187,10 +201,18 @@ namespace Sketching {
             toggleSpaceBtn.GetComponent<Image>().color = Color.white;
 
             setProxyAnchorBtn.SetActive(false);
+            moveBtn.SetActive(false);
         }
 
-        public bool IsSketchingRelativelyInSpace() {
-            return isSketchingRelativelyInSpace;
+        public void ToggleMoveFreely() {
+            if (isMoving) {
+                moveBtn.GetComponentInChildren<TMP_Text>().text = "STATIC";
+                moveBtn.GetComponent<Image>().color = Color.white;
+            } else {
+                moveBtn.GetComponentInChildren<TMP_Text>().text = "MOVING";
+                moveBtn.GetComponent<Image>().color = purple;
+            }
+            isMoving = !isMoving;
         }
 
     }

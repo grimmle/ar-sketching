@@ -122,4 +122,8 @@ public class ButtonHandler : MonoBehaviour
         }
     }
 
+    public void ToggleMoveFreely() {
+        touchScript.ToggleMoveFreely();
+    }
+
 }
