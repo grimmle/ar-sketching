@@ -3,6 +3,8 @@
 
 namespace Sketching {
     using UnityEngine;
+    using UnityEngine.UI;
+    using TMPro;
     using UnityEngine.EventSystems;
     using UnityEngine.XR.ARFoundation;
     using System.Collections.Generic;
@@ -15,14 +17,21 @@ namespace Sketching {
         public SketchWorld SketchWorld;
         public GameObject SketchObjectPrefab;
 
-        // color picker to extract current color
+        //color picker to extract current color
         public ColorPicker ColorPicker;
-        // indicator for where new objects are drawn from
+        //indicator for where new objects are drawn from
         public GameObject BrushMarker;
-        // anchor in 3D space used for relative mid-air sketching
+
+        [Tooltip("Object to spawn as anchor proxy anchor.")]
+        public GameObject proxyAnchorPrefab = null;
+        //anchor in 3D space used for relative mid-air sketching
         private GameObject currentProxyAnchor;
         private GameObject currentProxyAnchorNull;
         private bool isSketchingRelativelyInSpace = false;
+
+        //BUTTONS
+        private GameObject toggleSpaceBtn;
+        private GameObject setProxyAnchorBtn;
 
         public static float lineDiameter = 0.02f;
 
@@ -42,6 +51,10 @@ namespace Sketching {
             BrushMarker.transform.SetParent(Camera.transform);
             BrushMarker.transform.localPosition = Vector3.forward * 0.3f;
             invoker = new CommandInvoker();
+
+            toggleSpaceBtn = GameObject.Find("Toggle Sketching Space");
+            setProxyAnchorBtn = GameObject.Find("Set Proxy Anchor");
+            setProxyAnchorBtn.SetActive(false);
         }
 
         public void Update() {
@@ -67,8 +80,7 @@ namespace Sketching {
                             //add new control point according to current device position or active proxy
                             if (isSketchingRelativelyInSpace && currentProxyAnchorNull != null) {
                                 // currentProxyAnchor.transform.rotation = Camera.transform.rotation;
-                                Debug.Log($"currentProxyAnchorNull {currentProxyAnchorNull.transform.position.ToString()}");
-                                // new AddControlPointContinuousCommand(currentLineSketchObject, currentProxyAnchor.transform.position + localPos).Execute();
+                                // Debug.Log($"currentProxyAnchorNull {currentProxyAnchorNull.transform.position.ToString()}");
                                 new AddControlPointContinuousCommand(currentLineSketchObject, currentProxyAnchorNull.transform.position).Execute();
                             } else {
                                 new AddControlPointContinuousCommand(currentLineSketchObject, BrushMarker.transform.position).Execute();
@@ -145,18 +157,40 @@ namespace Sketching {
 
         public void SetAnchorProxy() {
             // set proxy anchor to current brushMarker position
-            currentProxyAnchor = Instantiate(BrushMarker);
-            currentProxyAnchor.transform.position = BrushMarker.transform.position;
-            Debug.Log($"PROXY ANCHOR CREATED AT {BrushMarker.transform.position.ToString()}");
-            // BrushMarker.SetActive(false);
-
+            if (currentProxyAnchor == null) {
+                currentProxyAnchor = Instantiate(proxyAnchorPrefab, BrushMarker.transform.position, Quaternion.identity);
+                Debug.Log($"PROXY ANCHOR CREATED AT {BrushMarker.transform.position.ToString()}");
+            } else {
+                currentProxyAnchor.transform.position = BrushMarker.transform.position;
+                Debug.Log($"PROXY ANCHOR MOVED TO {BrushMarker.transform.position.ToString()}");
+            }
+            // currentProxyAnchor.transform.position = BrushMarker.transform.position;
             isSketchingRelativelyInSpace = true;
         }
 
+        public void EnableRelativeSketching() {
+            isSketchingRelativelyInSpace = true;
+            if (currentProxyAnchor == null) SetAnchorProxy();
+            BrushMarker.SetActive(false);
+
+            toggleSpaceBtn.GetComponentInChildren<TMP_Text>().text = "RELATIVE";
+            Color purple = new Color(0.66f, 0.12f, 0.96f);
+            toggleSpaceBtn.GetComponent<Image>().color = purple;
+
+            setProxyAnchorBtn.SetActive(true);
+        }
         public void DisableRelativeSketching() {
-            Debug.Log("Disabled relative sketching");
             isSketchingRelativelyInSpace = false;
-            // BrushMarker.SetActive(true);
+            BrushMarker.SetActive(true);
+
+            toggleSpaceBtn.GetComponentInChildren<TMP_Text>().text = "ABSOLUTE";
+            toggleSpaceBtn.GetComponent<Image>().color = Color.white;
+
+            setProxyAnchorBtn.SetActive(false);
+        }
+
+        public bool IsSketchingRelativelyInSpace() {
+            return isSketchingRelativelyInSpace;
         }
 
     }

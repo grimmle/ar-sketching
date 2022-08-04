@@ -114,4 +114,12 @@ public class ButtonHandler : MonoBehaviour
         touchScript.SetAnchorProxy();
     }
 
+    public void ToggleSketchingSpace() {
+        if (touchScript.IsSketchingRelativelyInSpace()) {
+            touchScript.DisableRelativeSketching();
+        } else {
+            touchScript.EnableRelativeSketching();
+        }
+    }
+
 }
