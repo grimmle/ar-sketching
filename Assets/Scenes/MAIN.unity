@@ -304,6 +304,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
+  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &25264337
@@ -670,6 +671,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
+  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &113383492
@@ -780,12 +782,12 @@ GameObject:
   - component: {fileID: 174167492}
   - component: {fileID: 174167491}
   m_Layer: 5
-  m_Name: Move Freely
+  m_Name: Freeze
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &174167490
 RectTransform:
   m_ObjectHideFlags: 0
@@ -820,6 +822,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
+  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &174167492
@@ -1812,6 +1815,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
+  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &519581587
@@ -1962,6 +1966,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
+  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &563685995
@@ -2300,6 +2305,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
+  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!1 &820867065
@@ -2747,7 +2753,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: STATIC
+  m_text: FREEZE
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3161,7 +3167,6 @@ MonoBehaviour:
   spatialAnchorManager: {fileID: 1207951679}
   anchoredObjectPrefab: {fileID: 580457694890696453, guid: ef181b7b6127a457a8e22edbfe072361,
     type: 3}
-  currentAnchorIdToSave: 
 --- !u!1 &1317005572
 GameObject:
   m_ObjectHideFlags: 0
@@ -3216,6 +3221,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
+  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &1317005575
@@ -3379,7 +3385,7 @@ MonoBehaviour:
     type: 3}
   ColorPicker: {fileID: 410277375}
   BrushMarker: {fileID: 1662533778}
-  proxyAnchorPrefab: {fileID: 4554332356448793418, guid: f9f91d378dfc54370afabea8dcff1db4,
+  anchorPlane: {fileID: 616976525079372118, guid: a72abfec67a994926b3b92b3f5573f39,
     type: 3}
 --- !u!4 &1409983263
 Transform:
@@ -3450,6 +3456,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
+  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &1416699194
@@ -3600,6 +3607,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
+  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &1543526927
@@ -4314,6 +4322,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
+  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &1754269621
@@ -4555,6 +4564,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
+  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &2002630293
@@ -4705,6 +4715,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
+  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &2019469738
@@ -4953,6 +4964,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Main: {fileID: 1409983261}
+  ASA: {fileID: 0}
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
 --- !u!114 &2090104822
