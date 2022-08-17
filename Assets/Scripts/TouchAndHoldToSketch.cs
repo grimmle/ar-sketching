@@ -106,7 +106,6 @@ namespace Sketching {
                                     currentHitpoint.transform.position = hitPoint;
 
                                     currentLineSketchObject.transform.position = hitPoint;
-                                    currentLineSketchObject.transform.SetParent(currentProxyAnchor.transform);
 
                                     //null, new "origin" at hitpoint
                                     currentProxyAnchorNull = new GameObject();
@@ -117,7 +116,7 @@ namespace Sketching {
                                     currentProxyAnchorBrush.transform.position = currentHitpoint.transform.position;
                                     currentProxyAnchorBrush.transform.SetParent(currentHitpoint.transform);
 
-                                    //visualization for the brush marker at the proxy anchor
+                                    //visualization for the brush marker relative to proxy anchor
                                     var brushMarkerRelativeSpace = Instantiate(BrushMarker, hitPoint, Quaternion.identity);
                                     brushMarkerRelativeSpace.transform.SetParent(currentProxyAnchorBrush.transform);
                                 }
