@@ -23,11 +23,18 @@ namespace Sketching {
         public GameObject BrushMarker;
 
         [Tooltip("Visualization of the anchor plane.")]
-        public GameObject anchorPlane = null;
+        public GameObject AnchorPlanePrefab = null;
         //anchor in 3D space used for relative mid-air sketching
         private GameObject currentProxyAnchor;
         private Plane currentProxyAnchorPlane;
+
+        //hit point
+        private GameObject currentHitpoint;
+        //brush at current plane hit point
+        private GameObject currentProxyAnchorBrush;
+        //null parented to camera movement
         private GameObject currentProxyAnchorNull;
+
         private bool isSketchingRelativelyInSpace = false;
         private bool isFrozen = false;
 
@@ -86,38 +93,42 @@ namespace Sketching {
 
                             //if sketching relatively, raycast from viewport center to anchorPlane, set anchorNull and start drawing from that hitpoint
                             if (isSketchingRelativelyInSpace && currentProxyAnchor != null) {
-                                // Ray ray = Camera.ScreenPointToRay(BrushMarker.transform.position);
                                 Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-                                // float enter = currentProxyAnchorPlane.GetDistanceToPoint(Camera.transform.position);
                                 float enter = 0.0f;
+                                Camera.transform.parent = null;
 
                                 if (currentProxyAnchorPlane.Raycast(ray, out enter)) {
                                     Vector3 hitPoint = ray.GetPoint(enter);
-                                    Debug.Log($"hit plane at {hitPoint.ToString()}");
+                                    // Debug.Log($"hit plane at {hitPoint.ToString()}");
 
-                                    var x = Instantiate(BrushMarker, hitPoint, Quaternion.identity);
+                                    //point where the user is starting a new sketch
+                                    currentHitpoint = new GameObject();
+                                    currentHitpoint.transform.position = hitPoint;
 
                                     currentLineSketchObject.transform.position = hitPoint;
                                     currentLineSketchObject.transform.SetParent(currentProxyAnchor.transform);
 
+                                    //null, new "origin" at hitpoint
                                     currentProxyAnchorNull = new GameObject();
-                                    currentProxyAnchorNull.transform.position = hitPoint;
-                                    currentProxyAnchorNull.transform.SetParent(Camera.transform);
-                                    // isFrozen = false;
-                                    // freezeBtn.SetActive(false);
+                                    currentProxyAnchorNull.transform.position = Camera.transform.position;
+
+                                    //brush from where new lines are drawn
+                                    currentProxyAnchorBrush = new GameObject();
+                                    currentProxyAnchorBrush.transform.position = currentHitpoint.transform.position;
+                                    currentProxyAnchorBrush.transform.SetParent(currentHitpoint.transform);
+
+                                    //visualization for the brush marker at the proxy anchor
+                                    var brushMarkerRelativeSpace = Instantiate(BrushMarker, hitPoint, Quaternion.identity);
+                                    brushMarkerRelativeSpace.transform.SetParent(currentProxyAnchorBrush.transform);
                                 }
                             }
-
-                            // if (currentProxyAnchorNull == null || !isFrozen) {
-                            //     currentProxyAnchorNull.transform.position = currentProxyAnchor.transform.position;
-                            //     Debug.Log($"PROXY NULL MOVED BACK TO ORIGINAL ANCHOR POSIITON {currentProxyAnchorNull.transform.position.ToString()}");
-                            // }
                         } else if (currentLineSketchObject) {
                             //add new control point according to current device position or active proxy
-                            if (isSketchingRelativelyInSpace && currentProxyAnchorNull != null) {
-                                // currentProxyAnchor.transform.rotation = Camera.transform.rotation;
-                                // Debug.Log($"currentProxyAnchorNull {currentProxyAnchorNull.transform.position.ToString()}");
-                                new AddControlPointContinuousCommand(currentLineSketchObject, currentProxyAnchorNull.transform.position).Execute();
+                            if (isSketchingRelativelyInSpace && currentProxyAnchorBrush != null) {
+                                //get camera position relative to hitpoint origin and create sketch there
+                                var relativeCameraPos = getRelativePosition(currentProxyAnchorNull.transform, Camera.transform.position);
+                                currentProxyAnchorBrush.transform.localPosition = relativeCameraPos;
+                                new AddControlPointContinuousCommand(currentLineSketchObject, currentProxyAnchorBrush.transform.position).Execute();
                             } else {
                                 new AddControlPointContinuousCommand(currentLineSketchObject, BrushMarker.transform.position).Execute();
                             }
@@ -189,7 +200,7 @@ namespace Sketching {
         public void SetAnchorProxy() {
             // set proxy anchor to current BrushMarker position
             if (currentProxyAnchor == null) {
-                currentProxyAnchor = Instantiate(anchorPlane, BrushMarker.transform.position, BrushMarker.transform.rotation);
+                currentProxyAnchor = Instantiate(AnchorPlanePrefab, BrushMarker.transform.position, BrushMarker.transform.rotation);
                 currentProxyAnchorPlane = new Plane(-Camera.transform.forward, currentProxyAnchor.transform.position);
                 Debug.Log($"PROXY ANCHOR CREATED AT {currentProxyAnchor.transform.position.ToString()}");
             } else {
@@ -234,6 +245,16 @@ namespace Sketching {
                 freezeBtn.GetComponent<Image>().color = purple;
             }
             isFrozen = !isFrozen;
+        }
+
+        public static Vector3 getRelativePosition(Transform origin, Vector3 position) {
+            Vector3 distance = position - origin.position;
+            Vector3 relativePosition = Vector3.zero;
+            relativePosition.x = Vector3.Dot(distance, origin.right.normalized);
+            relativePosition.y = Vector3.Dot(distance, origin.up.normalized);
+            relativePosition.z = Vector3.Dot(distance, origin.forward.normalized);
+
+            return relativePosition;
         }
 
     }

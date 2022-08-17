@@ -3385,7 +3385,7 @@ MonoBehaviour:
     type: 3}
   ColorPicker: {fileID: 410277375}
   BrushMarker: {fileID: 1662533778}
-  anchorPlane: {fileID: 616976525079372118, guid: a72abfec67a994926b3b92b3f5573f39,
+  AnchorPlanePrefab: {fileID: 616976525079372118, guid: a72abfec67a994926b3b92b3f5573f39,
     type: 3}
 --- !u!4 &1409983263
 Transform:
