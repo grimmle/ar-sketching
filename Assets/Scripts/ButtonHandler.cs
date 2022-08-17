@@ -1,82 +1,84 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using VRSketchingGeometry;
-using VRSketchingGeometry.Commands;
-using VRSketchingGeometry.SketchObjectManagement;
 using Sketching;
-using System.Threading.Tasks;
+using VRSketchingGeometry;
+using VRSketchingGeometry.SketchObjectManagement;
+using Microsoft.Azure.SpatialAnchors;
+using Microsoft.Azure.SpatialAnchors.Unity;
 
-public class ButtonHandler : MonoBehaviour
-{
+public class ButtonHandler : MonoBehaviour {
     TouchAndHoldToSketch touchScript;
     SpatialAnchorsSetup asaScript;
     [SerializeField] GameObject Main;
-    [SerializeField] GameObject ASA;
+    // [SerializeField] GameObject ASA;
 
     public SketchWorld SketchWorld;
     public DefaultReferences Defaults;
     private string SavePath;
 
 
-    void Awake()
-    {
-        touchScript = Main.GetComponent<TouchAndHoldToSketch>();
-        asaScript = ASA.GetComponent<SpatialAnchorsSetup>();
+    void Awake() {
+        touchScript = GameObject.Find("Main").GetComponent<TouchAndHoldToSketch>();
+        asaScript = GameObject.Find("AzureSpatialAnchors").GetComponent<SpatialAnchorsSetup>();
     }
-    public void Save()
-    {
+    public async void Save() {
         // SketchWorld = Instantiate(Defaults.SketchWorldPrefab).GetComponent<SketchWorld>();
 
-        //Serialize the SketchWorld to a XML file
-        SavePath = System.IO.Path.Combine(Application.persistentDataPath, "Sketch-" + System.DateTime.UtcNow.Year + "-" + System.DateTime.UtcNow.Month + "-" + System.DateTime.UtcNow.Day + "-" + System.DateTime.UtcNow.Minute + "-" + System.DateTime.UtcNow.Second + ".xml");
-        SketchWorld.SaveSketchWorld(SavePath);
+        Debug.Log("ButtonHandler SaveAnchorToCloudAsync");
+        Debug.Log(asaScript.ToString());
+        await asaScript.SaveCurrentObjectAnchorToCloudAsync();
 
-        Debug.Log("SaveAnchorToCloudAsync");
-        asaScript.SaveAnchorToCloudAsync();
+        //Serialize the SketchWorld to a XML file
+        // SavePath = System.IO.Path.Combine(Application.persistentDataPath, "Sketch-" + System.DateTime.UtcNow.Year + "-" + System.DateTime.UtcNow.Month + "-" + System.DateTime.UtcNow.Day + "-" + System.DateTime.UtcNow.Minute + "-" + System.DateTime.UtcNow.Second + ".xml");
+        /*SavePath = System.IO.Path.Combine(Application.persistentDataPath, asaScript.currentAnchorIdToSave + ".xml");*/
+        // SketchWorld.SetAnchorId(asaScript.currentAnchorIdToSave);
+        SketchWorld.SaveSketchWorld(SavePath);
 
         //Export the SketchWorld as an OBJ file
         // SketchWorld.ExportSketchWorldToDefaultPath();
     }
 
-    public void Load()
-    {
+    /*public async void Load(string anchorId) {
         //Create another SketchWorld and load the serialized SketchWorld
         // DeserializedSketchWorld = Instantiate(Defaults.SketchWorldPrefab).GetComponent<SketchWorld>();
         DirectoryInfo d = new DirectoryInfo(Application.persistentDataPath);
-        foreach (var file in d.GetFiles("*.xml"))
-        {
-            Debug.Log("#######################");
+        string fileName = "";
+        foreach (var file in d.GetFiles("*.xml")) {
             Debug.Log("file.Name");
-            Debug.Log(file.Name);
-            Debug.Log("file.DirectoryName");
+            fileName = Path.GetFileNameWithoutExtension(file.FullName);
+            Debug.Log(fileName);
             Debug.Log(file.DirectoryName);
             SavePath = System.IO.Path.Combine(Application.persistentDataPath, file.Name);
-            // SavePath = file.DirectoryName;
         }
-        SketchWorld.LoadSketchWorld(SavePath);
-        // DeserializedSketchWorld.transform.position += new Vector3(5, 0, 0);
+        string id = fileName;
+        CloudSpatialAnchor anchor = await asaScript.getAnchorWithId(id);
+        Debug.Log($"returned anchor {anchor.Identifier}");
+        foreach (var kvp in anchor.AppProperties) {
+            Debug.Log($"Key: {kvp.Key}, Value: {kvp.Value}");
+        }
 
+        asaScript.SetAnchorIdsToLocate(new string[] { id });
+        SketchWorld.LoadSketchWorld(SavePath);
+    }*/
+
+    public void LookForNearbySketches() {
+        // start asa cloud session and start looking for nearby anchors
+        asaScript.SetupCloudSessionAsync();
     }
 
-    public void SetLineDiameter(float diameter)
-    {
+    public void SetLineDiameter(float diameter) {
         TouchAndHoldToSketch.lineDiameter = diameter;
     }
 
-    public void Undo()
-    {
+    public void Undo() {
         touchScript.DeleteLastLineSketchObject();
     }
 
-    public void Redo()
-    {
+    public void Redo() {
         touchScript.RestoreLastDeletedSketchObject();
     }
 
-    public void Clear()
-    {
+    public void Clear() {
         // foreach (var obj in Resources.FindObjectsOfTypeAll(typeof(LineSketchObject)))
         // {
         //     Debug.Log(obj.name);
@@ -86,26 +88,22 @@ public class ButtonHandler : MonoBehaviour
         SketchWorld.ActiveSketchWorld = Instantiate(Defaults.SketchWorldPrefab).GetComponent<SketchWorld>();
     }
 
-    public void StartASASession()
-    {
+    public void StartASASession() {
         Debug.Log("StartASASession");
         asaScript.SetupCloudSessionAsync();
     }
 
-    public void SaveAnchor()
-    {
+    public void SaveAnchor() {
         Debug.Log("SaveAnchorToCloudAsync");
         asaScript.SaveAnchorToCloudAsync();
     }
 
-    public void StopASASession()
-    {
+    public void StopASASession() {
         Debug.Log("StopCloudSessionAsync");
         asaScript.StopCloudSessionAsync();
     }
 
-    public void QueryAnchors()
-    {
+    public void QueryAnchors() {
         Debug.Log("FindNearbyAnchors");
         // asaScript.FindNearbyAnchors();
     }
