@@ -3162,6 +3162,7 @@ MonoBehaviour:
   spatialAnchorManager: {fileID: 1207951679}
   anchoredObjectPrefab: {fileID: 580457694890696453, guid: ef181b7b6127a457a8e22edbfe072361,
     type: 3}
+  currentAnchorIdToSave: 
   foundAnchors: {fileID: 2000446921}
 --- !u!1 &1317005572
 GameObject:
@@ -3410,8 +3411,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 361d924ae16144694a743fed7e6520a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SketchWorld: {fileID: 0}
-  Defaults: {fileID: 0}
+  SketchWorld: {fileID: 99777758}
 --- !u!1 &1416699191
 GameObject:
   m_ObjectHideFlags: 0

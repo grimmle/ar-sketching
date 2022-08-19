@@ -23,14 +23,16 @@ public class ButtonHandler : MonoBehaviour {
     }
     public async void Save() {
         // SketchWorld = Instantiate(Defaults.SketchWorldPrefab).GetComponent<SketchWorld>();
+        Debug.Log("--- ButtonHandler # Save()");
 
-        Debug.Log("ButtonHandler SaveAnchorToCloudAsync");
-        Debug.Log(asaScript.ToString());
-        await asaScript.SaveCurrentObjectAnchorToCloudAsync();
+        await asaScript.SetupCloudSessionAsync();
+        Debug.Log("--- ButtonHandler # SetupCloudSessionAsync()");
+
+        var anchorId = await asaScript.SaveCurrentObjectAnchorToCloudAsync();
 
         //Serialize the SketchWorld to a XML file
         // SavePath = System.IO.Path.Combine(Application.persistentDataPath, "Sketch-" + System.DateTime.UtcNow.Year + "-" + System.DateTime.UtcNow.Month + "-" + System.DateTime.UtcNow.Day + "-" + System.DateTime.UtcNow.Minute + "-" + System.DateTime.UtcNow.Second + ".xml");
-        /*SavePath = System.IO.Path.Combine(Application.persistentDataPath, asaScript.currentAnchorIdToSave + ".xml");*/
+        SavePath = System.IO.Path.Combine(Application.persistentDataPath, anchorId + ".xml");
         // SketchWorld.SetAnchorId(asaScript.currentAnchorIdToSave);
         SketchWorld.SaveSketchWorld(SavePath);
 
@@ -61,9 +63,12 @@ public class ButtonHandler : MonoBehaviour {
         SketchWorld.LoadSketchWorld(SavePath);
     }*/
 
-    public void LookForNearbySketches() {
+    public async void LookForNearbySketches() {
         // start asa cloud session and start looking for nearby anchors
-        asaScript.SetupCloudSessionAsync();
+        Debug.Log("LookForNearbySketches");
+        await asaScript.SetupCloudSessionAsync();
+        asaScript.ConfigureSensors();
+        // await asaScript.FindNearbyAnchors();
     }
 
     public void SetLineDiameter(float diameter) {
@@ -88,15 +93,15 @@ public class ButtonHandler : MonoBehaviour {
         SketchWorld.ActiveSketchWorld = Instantiate(Defaults.SketchWorldPrefab).GetComponent<SketchWorld>();
     }
 
-    public void StartASASession() {
-        Debug.Log("StartASASession");
-        asaScript.SetupCloudSessionAsync();
-    }
+    // public void StartASASession() {
+    //     Debug.Log("StartASASession");
+    //     asaScript.SetupCloudSessionAsync();
+    // }
 
-    public void SaveAnchor() {
-        Debug.Log("SaveAnchorToCloudAsync");
-        asaScript.SaveAnchorToCloudAsync();
-    }
+    // public void SaveAnchor() {
+    //     Debug.Log("SaveAnchorToCloudAsync");
+    //     asaScript.SaveAnchorToCloudAsync();
+    // }
 
     public void StopASASession() {
         Debug.Log("StopCloudSessionAsync");
