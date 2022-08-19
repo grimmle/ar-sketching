@@ -216,10 +216,7 @@ namespace Sketching {
             isSketchingRelativelyInSpace = true;
 
             if (currentProxyAnchor == null) SetAnchorProxy();
-            // BrushMarker.SetActive(false);
-
             toggleSpaceBtn.GetComponentInChildren<TMP_Text>().text = "RELATIVE";
-            toggleSpaceBtn.GetComponent<Image>().color = purple;
 
             setProxyAnchorBtn.SetActive(true);
             // freezeBtn.SetActive(true);
@@ -227,10 +224,7 @@ namespace Sketching {
         }
         public void DisableRelativeSketching() {
             isSketchingRelativelyInSpace = false;
-            BrushMarker.SetActive(true);
-
             toggleSpaceBtn.GetComponentInChildren<TMP_Text>().text = "ABSOLUTE";
-            toggleSpaceBtn.GetComponent<Image>().color = Color.white;
 
             setProxyAnchorBtn.SetActive(false);
             freezeBtn.SetActive(false);
