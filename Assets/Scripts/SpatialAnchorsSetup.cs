@@ -47,7 +47,7 @@ public class SpatialAnchorsSetup : MonoBehaviour {
     //     Debug.Log($"spatialAnchors.Count {spatialAnchors.Count}");
     // }
 
-    async Task LoadSketchWithAnchor(string anchorId, Vector3 pos, Quaternion rot) {
+    async Task LoadSketchWithGivenAnchor(string anchorId, Vector3 pos, Quaternion rot) {
         SketchWorldManager.Load(anchorId, pos, rot);
     }
 
@@ -200,14 +200,10 @@ public class SpatialAnchorsSetup : MonoBehaviour {
         // doesnt locate the actual anchor in 3D space
         CloudSpatialAnchor anchor = await spatialAnchorManager.Session.GetAnchorPropertiesAsync(anchorId);
         Debug.Log("found anchor props " + anchor.Identifier);
-        // Debug.Log("pose " + anchor.GetPose().ToString());
-        // Debug.Log("pose " + anchor.GetPose().position.ToString());
-        // SpawnNewAnchoredObject(anchor.GetPose().position, anchor.GetPose().rotation, true);
         return anchor;
     }
 
     protected CloudSpatialAnchorWatcher CreateWatcher() {
-        Debug.Log("CreateWatcher");
         if ((spatialAnchorManager != null) && (spatialAnchorManager.Session != null)) {
             Debug.Log("+++ creating cloud anchor watcher");
             Debug.Log($"looking for id {anchorLocateCriteria.Identifiers.ToString()}");
@@ -233,7 +229,7 @@ public class SpatialAnchorsSetup : MonoBehaviour {
                         spatialAnchors.Add(anchor);
                         // SpawnNewAnchoredObject(anchor.GetPose().position, anchor.GetPose().rotation, true);
                         if (spatialAnchors.Count == 1) {
-                            LoadSketchWithAnchor(anchor.Identifier, anchor.GetPose().position, anchor.GetPose().rotation);
+                            LoadSketchWithGivenAnchor(anchor.Identifier, anchor.GetPose().position, anchor.GetPose().rotation);
                         }
                     } catch (Exception ex) {
                         Debug.LogError(ex);
@@ -259,7 +255,7 @@ public class SpatialAnchorsSetup : MonoBehaviour {
         }
     }
 
-    private async void deleteAnchorWithoutLocating(string anchorId) {
+    private async void DeleteAnchorWithoutLocating(string anchorId) {
         var anchor = await spatialAnchorManager.Session.GetAnchorPropertiesAsync(anchorId);
         await spatialAnchorManager.Session.DeleteAnchorAsync(anchor);
     }

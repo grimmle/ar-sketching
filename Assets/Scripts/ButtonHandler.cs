@@ -7,33 +7,25 @@ using Microsoft.Azure.SpatialAnchors;
 using Microsoft.Azure.SpatialAnchors.Unity;
 
 public class ButtonHandler : MonoBehaviour {
-    TouchAndHoldToSketch touchScript;
-    SpatialAnchorsSetup asaScript;
-    [SerializeField] GameObject Main;
-    // [SerializeField] GameObject ASA;
+    TouchAndHoldToSketch TouchAndHoldToSketchScript;
+    SpatialAnchorsSetup SpatialAnchorsSetup;
 
     public SketchWorld SketchWorld;
     public DefaultReferences Defaults;
+
     private string SavePath;
 
-
     void Awake() {
-        touchScript = GameObject.Find("Main").GetComponent<TouchAndHoldToSketch>();
-        asaScript = GameObject.Find("AzureSpatialAnchors").GetComponent<SpatialAnchorsSetup>();
+        TouchAndHoldToSketchScript = GameObject.Find("Main").GetComponent<TouchAndHoldToSketch>();
+        SpatialAnchorsSetup = GameObject.Find("AzureSpatialAnchors").GetComponent<SpatialAnchorsSetup>();
     }
     public async void Save() {
-        // SketchWorld = Instantiate(Defaults.SketchWorldPrefab).GetComponent<SketchWorld>();
-        Debug.Log("--- ButtonHandler # Save()");
-
-        await asaScript.SetupCloudSessionAsync();
-        Debug.Log("--- ButtonHandler # SetupCloudSessionAsync()");
-
-        var anchorId = await asaScript.SaveCurrentObjectAnchorToCloudAsync();
+        await SpatialAnchorsSetup.SetupCloudSessionAsync();
+        var anchorId = await SpatialAnchorsSetup.SaveCurrentObjectAnchorToCloudAsync();
 
         //Serialize the SketchWorld to a XML file
-        // SavePath = System.IO.Path.Combine(Application.persistentDataPath, "Sketch-" + System.DateTime.UtcNow.Year + "-" + System.DateTime.UtcNow.Month + "-" + System.DateTime.UtcNow.Day + "-" + System.DateTime.UtcNow.Minute + "-" + System.DateTime.UtcNow.Second + ".xml");
+        //SavePath = System.IO.Path.Combine(Application.persistentDataPath, "Sketch-" + System.DateTime.UtcNow.Year + "-" + System.DateTime.UtcNow.Month + "-" + System.DateTime.UtcNow.Day + "-" + System.DateTime.UtcNow.Minute + "-" + System.DateTime.UtcNow.Second + ".xml");
         SavePath = System.IO.Path.Combine(Application.persistentDataPath, anchorId + ".xml");
-        // SketchWorld.SetAnchorId(asaScript.currentAnchorIdToSave);
         SketchWorld.SaveSketchWorld(SavePath);
 
         //Export the SketchWorld as an OBJ file
@@ -66,8 +58,8 @@ public class ButtonHandler : MonoBehaviour {
     public async void LookForNearbySketches() {
         // start asa cloud session and start looking for nearby anchors
         Debug.Log("LookForNearbySketches");
-        await asaScript.SetupCloudSessionAsync();
-        asaScript.ConfigureSensors();
+        await SpatialAnchorsSetup.SetupCloudSessionAsync();
+        SpatialAnchorsSetup.ConfigureSensors();
         // await asaScript.FindNearbyAnchors();
     }
 
@@ -76,57 +68,27 @@ public class ButtonHandler : MonoBehaviour {
     }
 
     public void Undo() {
-        touchScript.DeleteLastLineSketchObject();
+        TouchAndHoldToSketchScript.DeleteLastLineSketchObject();
     }
 
     public void Redo() {
-        touchScript.RestoreLastDeletedSketchObject();
-    }
-
-    public void Clear() {
-        // foreach (var obj in Resources.FindObjectsOfTypeAll(typeof(LineSketchObject)))
-        // {
-        //     Debug.Log(obj.name);
-        //     Destroy(obj);
-        // }
-        // Destroy(SketchWorld);
-        SketchWorld.ActiveSketchWorld = Instantiate(Defaults.SketchWorldPrefab).GetComponent<SketchWorld>();
-    }
-
-    // public void StartASASession() {
-    //     Debug.Log("StartASASession");
-    //     asaScript.SetupCloudSessionAsync();
-    // }
-
-    // public void SaveAnchor() {
-    //     Debug.Log("SaveAnchorToCloudAsync");
-    //     asaScript.SaveAnchorToCloudAsync();
-    // }
-
-    public void StopASASession() {
-        Debug.Log("StopCloudSessionAsync");
-        asaScript.StopCloudSessionAsync();
-    }
-
-    public void QueryAnchors() {
-        Debug.Log("FindNearbyAnchors");
-        // asaScript.FindNearbyAnchors();
+        TouchAndHoldToSketchScript.RestoreLastDeletedSketchObject();
     }
 
     public void SetAnchorProxyForRelativeSketching() {
-        touchScript.SetAnchorProxy();
+        TouchAndHoldToSketchScript.SetAnchorProxy();
     }
 
     public void ToggleSketchingSpace() {
-        if (touchScript.IsSketchingRelativelyInSpace()) {
-            touchScript.DisableRelativeSketching();
+        if (TouchAndHoldToSketchScript.IsSketchingRelativelyInSpace()) {
+            TouchAndHoldToSketchScript.DisableRelativeSketching();
         } else {
-            touchScript.EnableRelativeSketching();
+            TouchAndHoldToSketchScript.EnableRelativeSketching();
         }
     }
 
     public void ToggleMoveFreely() {
-        touchScript.ToggleMoveFreely();
+        TouchAndHoldToSketchScript.ToggleMoveFreely();
     }
 
 }

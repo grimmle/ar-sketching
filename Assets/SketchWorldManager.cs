@@ -1,10 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Azure.SpatialAnchors.Unity;
-using Microsoft.Azure.SpatialAnchors;
 using UnityEngine;
-using VRSketchingGeometry;
 using VRSketchingGeometry.SketchObjectManagement;
 
 public class SketchWorldManager : MonoBehaviour {
