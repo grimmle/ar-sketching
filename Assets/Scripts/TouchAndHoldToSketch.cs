@@ -45,7 +45,6 @@ namespace Sketching {
         private GameObject toggleSpaceBtn;
         private GameObject setProxyAnchorBtn;
         private GameObject toggleModeBtn;
-        // private GameObject freezeBtn;
 
         public static float lineDiameter = 0.02f;
 
@@ -140,8 +139,8 @@ namespace Sketching {
                             CreateNewLineSketchObject();
                             startNewSketchObject = false;
                         } else if (currentLineSketchObject) {
-                            var touchPos = Camera.main.ScreenToWorldPoint(new Vector3(currentTouch.position.x, currentTouch.position.y, 0.3f));
                             // draw at current touch position
+                            var touchPos = Camera.main.ScreenToWorldPoint(new Vector3(currentTouch.position.x, currentTouch.position.y, 0.3f));
                             new AddControlPointContinuousCommand(currentLineSketchObject, touchPos).Execute();
                         }
 
@@ -181,24 +180,19 @@ namespace Sketching {
             }
 
             //instantiate sketch object and set configuration
-
             var gameObject = Instantiate(SketchObjectPrefab);
             var renderer = gameObject.GetComponent<Renderer>();
             var newMat = renderer.sharedMaterial;
             newMat.color = ColorPicker.color;
             renderer.material.color = ColorPicker.color;
-            // Debug.Log("renderer.material.color: " + renderer.sharedMaterial.color.ToString());
 
             currentLineSketchObject = gameObject.GetComponent<LineSketchObject>();
             currentLineSketchObject.minimumControlPointDistance = .02f;
-
             LineBrush brush = currentLineSketchObject.GetBrush() as LineBrush;
             brush.SketchMaterial = new SketchMaterialData(newMat);
             brush.CrossSectionScale = lineDiameter;
             brush.InterpolationSteps = 5;
             currentLineSketchObject.SetBrush(brush);
-            // currentLineSketchObject.SetLineDiameter(lineDiameter);
-            // currentLineSketchObject.SetInterpolationSteps(5);
         }
 
         //refines the latest sketch object
@@ -256,7 +250,7 @@ namespace Sketching {
                 drawingMode = DrawingMode.Air;
                 toggleModeBtn.GetComponentInChildren<TMP_Text>().text = "air";
                 BrushMarker.SetActive(true);
-                // set absolute air drawing as default when switching back
+                //set absolute air drawing as default when switching back
                 if (isSketchingRelativelyInSpace) ToggleAirSketchingSpace();
                 currentProxyAnchor.SetActive(false);
             }

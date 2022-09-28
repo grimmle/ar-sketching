@@ -14,7 +14,7 @@ public class ButtonHandler : MonoBehaviour {
     public DefaultReferences Defaults;
 
     private SketchWorldManager sketchWorldManager;
-    private GameObject listOfFoundAnchors;
+    private GameObject foundAnchorsOverlay;
 
     private string savePath;
 
@@ -22,7 +22,7 @@ public class ButtonHandler : MonoBehaviour {
         TouchAndHoldToSketchScript = GameObject.Find("Main").GetComponent<TouchAndHoldToSketch>();
         SpatialAnchorsSetup = GameObject.Find("AzureSpatialAnchors").GetComponent<SpatialAnchorsSetup>();
         sketchWorldManager = GameObject.Find("Main").GetComponent<SketchWorldManager>();
-        listOfFoundAnchors = GameObject.Find("Located Sketches List");
+        foundAnchorsOverlay = GameObject.Find("Located Sketches List");
     }
     public async void Save() {
         await SpatialAnchorsSetup.SetupCloudSessionAsync();
@@ -65,7 +65,6 @@ public class ButtonHandler : MonoBehaviour {
         Debug.Log("LookForNearbySketches");
         await SpatialAnchorsSetup.SetupCloudSessionAsync();
         SpatialAnchorsSetup.ConfigureSensors();
-        // await asaScript.FindNearbyAnchors();
     }
 
     public void LoadSketchWithIndex() {
@@ -74,7 +73,11 @@ public class ButtonHandler : MonoBehaviour {
         CloudSpatialAnchor anchor = SpatialAnchorsSetup.spatialAnchors[index];
         Debug.Log("load anchor with id: " + anchor.Identifier);
         sketchWorldManager.Load(SpatialAnchorsSetup.spatialAnchors[index]);
-        listOfFoundAnchors.SetActive(false);
+
+        CanvasGroup group = foundAnchorsOverlay.GetComponent<CanvasGroup>();
+        group.alpha = 0;
+        group.blocksRaycasts = false;
+        group.interactable = false;
     }
 
     public void SetLineDiameter(float diameter) {
@@ -99,6 +102,14 @@ public class ButtonHandler : MonoBehaviour {
 
     public void ToggleSketchingMode() {
         TouchAndHoldToSketchScript.ToggleSketchingMode();
+    }
+
+    public void CloseFoundSketchesList() {
+        // SpatialAnchorsSetup.StopCurrentWatcher();
+        CanvasGroup group = foundAnchorsOverlay.GetComponent<CanvasGroup>();
+        group.alpha = 0;
+        group.blocksRaycasts = false;
+        group.interactable = false;
     }
 
 }
