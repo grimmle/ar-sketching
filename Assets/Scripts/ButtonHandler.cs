@@ -79,16 +79,12 @@ public class ButtonHandler : MonoBehaviour {
         TouchAndHoldToSketchScript.SetAnchorProxy();
     }
 
-    public void ToggleSketchingSpace() {
-        if (TouchAndHoldToSketchScript.IsSketchingRelativelyInSpace()) {
-            TouchAndHoldToSketchScript.DisableRelativeSketching();
-        } else {
-            TouchAndHoldToSketchScript.EnableRelativeSketching();
-        }
+    public void ToggleAirSketchingSpace() {
+        TouchAndHoldToSketchScript.ToggleAirSketchingSpace();
     }
 
-    public void ToggleMoveFreely() {
-        TouchAndHoldToSketchScript.ToggleMoveFreely();
+    public void ToggleSketchingMode() {
+        TouchAndHoldToSketchScript.ToggleSketchingMode();
     }
 
 }

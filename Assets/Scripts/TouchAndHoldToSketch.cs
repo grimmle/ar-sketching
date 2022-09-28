@@ -11,6 +11,9 @@ namespace Sketching {
     using VRSketchingGeometry.SketchObjectManagement;
     using VRSketchingGeometry.Commands;
     using VRSketchingGeometry.Commands.Line;
+    using VRSketchingGeometry.Serialization;
+
+    public enum DrawingMode { Screen, Air }
 
     public class TouchAndHoldToSketch : MonoBehaviour {
         public Camera Camera;
@@ -41,7 +44,8 @@ namespace Sketching {
         //BUTTONS
         private GameObject toggleSpaceBtn;
         private GameObject setProxyAnchorBtn;
-        private GameObject freezeBtn;
+        private GameObject toggleModeBtn;
+        // private GameObject freezeBtn;
 
         public static float lineDiameter = 0.02f;
 
@@ -55,7 +59,7 @@ namespace Sketching {
         //needed for new input system
         private PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
 
-        Color purple = new Color(0.66f, 0.12f, 0.96f);
+        private DrawingMode drawingMode = DrawingMode.Air;
 
         public void Start() {
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
@@ -64,10 +68,9 @@ namespace Sketching {
             invoker = new CommandInvoker();
 
             toggleSpaceBtn = GameObject.Find("Toggle Sketching Space");
+            toggleModeBtn = GameObject.Find("Toggle Sketching Mode");
             setProxyAnchorBtn = GameObject.Find("Set Proxy Anchor");
             setProxyAnchorBtn.SetActive(false);
-            freezeBtn = GameObject.Find("Move Freely");
-            freezeBtn.SetActive(false);
         }
 
         public void Update() {
@@ -85,7 +88,7 @@ namespace Sketching {
                 if (isValidTouch) {
                     if (currentTouch.phase == TouchPhase.Began) {
                         startNewSketchObject = true;
-                    } else if (currentTouch.phase == TouchPhase.Stationary || (currentTouch.phase == TouchPhase.Moved && startNewSketchObject == false && currentLineSketchObject.getNumberOfControlPoints() > 0)) {
+                    } else if (drawingMode == DrawingMode.Air && (currentTouch.phase == TouchPhase.Stationary || (currentTouch.phase == TouchPhase.Moved && startNewSketchObject == false && currentLineSketchObject.getNumberOfControlPoints() > 0))) {
                         if (startNewSketchObject) {
                             //create a new sketch object
                             CreateNewLineSketchObject();
@@ -132,6 +135,16 @@ namespace Sketching {
                                 new AddControlPointContinuousCommand(currentLineSketchObject, BrushMarker.transform.position).Execute();
                             }
                         }
+                    } else if (drawingMode == DrawingMode.Screen && currentTouch.phase == TouchPhase.Moved) {
+                        if (startNewSketchObject) {
+                            CreateNewLineSketchObject();
+                            startNewSketchObject = false;
+                        } else if (currentLineSketchObject) {
+                            var touchPos = Camera.main.ScreenToWorldPoint(new Vector3(currentTouch.position.x, currentTouch.position.y, 0.3f));
+                            // draw at current touch position
+                            new AddControlPointContinuousCommand(currentLineSketchObject, touchPos).Execute();
+                        }
+
                     } else if (currentTouch.phase == TouchPhase.Ended) {
                         //delete sketch object if empty
                         if (startNewSketchObject == false && currentLineSketchObject.getNumberOfControlPoints() < 1) {
@@ -168,14 +181,24 @@ namespace Sketching {
             }
 
             //instantiate sketch object and set configuration
+
             var gameObject = Instantiate(SketchObjectPrefab);
             var renderer = gameObject.GetComponent<Renderer>();
+            var newMat = renderer.sharedMaterial;
+            newMat.color = ColorPicker.color;
             renderer.material.color = ColorPicker.color;
+            // Debug.Log("renderer.material.color: " + renderer.sharedMaterial.color.ToString());
 
             currentLineSketchObject = gameObject.GetComponent<LineSketchObject>();
             currentLineSketchObject.minimumControlPointDistance = .02f;
-            currentLineSketchObject.SetLineDiameter(lineDiameter);
-            currentLineSketchObject.SetInterpolationSteps(5);
+
+            LineBrush brush = currentLineSketchObject.GetBrush() as LineBrush;
+            brush.SketchMaterial = new SketchMaterialData(newMat);
+            brush.CrossSectionScale = lineDiameter;
+            brush.InterpolationSteps = 5;
+            currentLineSketchObject.SetBrush(brush);
+            // currentLineSketchObject.SetLineDiameter(lineDiameter);
+            // currentLineSketchObject.SetInterpolationSteps(5);
         }
 
         //refines the latest sketch object
@@ -209,35 +232,34 @@ namespace Sketching {
             isSketchingRelativelyInSpace = true;
         }
 
-        public bool IsSketchingRelativelyInSpace() {
-            return isSketchingRelativelyInSpace;
-        }
-        public void EnableRelativeSketching() {
-            isSketchingRelativelyInSpace = true;
-
-            if (currentProxyAnchor == null) SetAnchorProxy();
-            toggleSpaceBtn.GetComponentInChildren<TMP_Text>().text = "RELATIVE";
-
-            setProxyAnchorBtn.SetActive(true);
-            // freezeBtn.SetActive(true);
-            // isFrozen = true;
-        }
-        public void DisableRelativeSketching() {
-            isSketchingRelativelyInSpace = false;
-            toggleSpaceBtn.GetComponentInChildren<TMP_Text>().text = "ABSOLUTE";
-
-            setProxyAnchorBtn.SetActive(false);
-            freezeBtn.SetActive(false);
-            isFrozen = false;
-        }
-
-        public void ToggleMoveFreely() {
-            if (isFrozen) {
-                freezeBtn.GetComponent<Image>().color = Color.white;
+        public void ToggleAirSketchingSpace() {
+            if (isSketchingRelativelyInSpace) {
+                //disable realtive sketching
+                isSketchingRelativelyInSpace = false;
+                toggleSpaceBtn.GetComponentInChildren<TMP_Text>().text = "ABSOLUTE";
+                setProxyAnchorBtn.SetActive(false);
             } else {
-                freezeBtn.GetComponent<Image>().color = purple;
+                isSketchingRelativelyInSpace = true;
+                if (currentProxyAnchor == null) SetAnchorProxy();
+                toggleSpaceBtn.GetComponentInChildren<TMP_Text>().text = "RELATIVE";
+                setProxyAnchorBtn.SetActive(true);
             }
-            isFrozen = !isFrozen;
+        }
+
+        public void ToggleSketchingMode() {
+            if (drawingMode == DrawingMode.Air) {
+                drawingMode = DrawingMode.Screen;
+                toggleModeBtn.GetComponentInChildren<TMP_Text>().text = "screen";
+                BrushMarker.SetActive(false);
+                currentProxyAnchor.SetActive(true);
+            } else {
+                drawingMode = DrawingMode.Air;
+                toggleModeBtn.GetComponentInChildren<TMP_Text>().text = "air";
+                BrushMarker.SetActive(true);
+                // set absolute air drawing as default when switching back
+                if (isSketchingRelativelyInSpace) ToggleAirSketchingSpace();
+                currentProxyAnchor.SetActive(false);
+            }
         }
 
         public static Vector3 getRelativePosition(Transform origin, Vector3 position) {
