@@ -26,14 +26,21 @@ public class SpatialAnchorsSetup : MonoBehaviour {
     private string currentAnchorId = "";
     public string currentAnchorIdToSave = "";
 
-    List<CloudSpatialAnchor> spatialAnchors = new List<CloudSpatialAnchor>();
+    public List<CloudSpatialAnchor> spatialAnchors = new List<CloudSpatialAnchor>();
     public TMPro.TMP_Text foundAnchors;
+    public TMPro.TMP_Text anchorCreationProgress;
 
-    private SketchWorldManager SketchWorldManager;
+    private SketchWorldManager sketchWorldManager;
+
+    [SerializeField]
+    public GameObject foundAnchorButtonPrefab;
+    GameObject listOfFoundAnchors;
 
 
     void Start() {
-        SketchWorldManager = GameObject.Find("Main").GetComponent<SketchWorldManager>();
+        sketchWorldManager = GameObject.Find("Main").GetComponent<SketchWorldManager>();
+        listOfFoundAnchors = GameObject.Find("Panel");
+        listOfFoundAnchors.SetActive(false);
         spatialAnchorManager = FindObjectOfType<SpatialAnchorManager>();
 
         // spatialAnchorManager.LogDebug += (sender, args) => Debug.Log($"ASA - Debug: {args.Message}");
@@ -48,7 +55,7 @@ public class SpatialAnchorsSetup : MonoBehaviour {
     // }
 
     async Task LoadSketchWithGivenAnchor(string anchorId, Vector3 pos, Quaternion rot) {
-        SketchWorldManager.Load(anchorId, pos, rot);
+        sketchWorldManager.Load(anchorId, pos, rot);
     }
 
     public async Task SetupCloudSessionAsync() {
@@ -91,12 +98,21 @@ public class SpatialAnchorsSetup : MonoBehaviour {
         spatialAnchorManager.Session.LocationProvider = locationProvider;
 
         NearDeviceCriteria criteria = new NearDeviceCriteria();
-        criteria.DistanceInMeters = 30000;
-        criteria.MaxResultCount = 20;
+        criteria.DistanceInMeters = 500;
+        criteria.MaxResultCount = 10;
 
         anchorLocateCriteria = new AnchorLocateCriteria();
 
-        anchorLocateCriteria.Identifiers = new string[] { "d9ace388-0e20-4148-a06b-c5520a135a95" };
+        // anchorLocateCriteria.Identifiers = new string[] { "d9ace388-0e20-4148-a06b-c5520a135a95" };
+        anchorLocateCriteria.Identifiers = new string[] {
+            "246f7ba6-8854-40e6-b6b2-c2f9b394aec6",
+            "ee66b20a-8fbb-42e9-bbb1-e68f5683b363",
+            "c3641b09-0585-40af-af4b-735afaab9b33",
+            "fbdce9a0-e005-4b84-9184-59751e90974a",
+            "17f3901f-29ed-4ca8-907f-4b4f2ff27fdd",
+            "ba02780e-2c5d-4146-9113-711599607d20",
+            "d1e9a626-3ac2-4de9-93fe-3cc43c5eca49",
+        };
         // anchorLocateCriteria.NearDevice = criteria;
 
         currentWatcher = CreateWatcher();
@@ -135,14 +151,18 @@ public class SpatialAnchorsSetup : MonoBehaviour {
         if (cloudNativeAnchor.CloudAnchor == null) { await cloudNativeAnchor.NativeToCloud(); }
 
         CloudSpatialAnchor cloudSpatialAnchor = cloudNativeAnchor.CloudAnchor;
-        cloudSpatialAnchor.Expiration = DateTimeOffset.Now.AddDays(3);
+        cloudSpatialAnchor.Expiration = DateTimeOffset.Now.AddDays(1);
 
         while (!spatialAnchorManager.IsReadyForCreate) {
+            anchorCreationProgress.gameObject.SetActive(true);
             await Task.Delay(200);
             float createProgress = spatialAnchorManager.SessionStatus.RecommendedForCreateProgress;
-            Debug.Log($"IsReadyForCreate : {spatialAnchorManager.IsReadyForCreate}");
-            Debug.Log($"Move your device to capture more data points in the environment : {createProgress:0%}");
+            // Debug.Log($"IsReadyForCreate : {spatialAnchorManager.IsReadyForCreate}");
+            // Debug.Log($"createProgress: {createProgress:0%}");
+            anchorCreationProgress.text = $"Move your device around slowly to capture more data points in the environment.\nProgress: {createProgress:0%}";
         }
+        anchorCreationProgress.text = "Anchor sucessfully created!";
+        // anchorCreationProgress.gameObject.SetActive(false);
 
         Debug.Log("Saving anchor to cloud ...");
 
@@ -219,17 +239,43 @@ public class SpatialAnchorsSetup : MonoBehaviour {
         Debug.Log($"--- OnAnchorLocated --- {e.Status}, {e.Anchor}");
         LocateAnchorStatus status = e.Status;
         CloudSpatialAnchor anchor = e.Anchor;
+        listOfFoundAnchors.SetActive(true);
         switch (status) {
             case LocateAnchorStatus.Located: {
+                    Vector3 origin = sketchWorldManager.SketchWorld.transform.position;
                     Debug.Log("Cloud Anchor found! Identifier : " + anchor.Identifier);
-                    foundAnchors.text += $"\n {anchor.Identifier}";
+                    // foundAnchors.text += $"\n {anchor.Identifier}";
                     try {
-                        Debug.Log("onLocated pose pos: " + anchor.GetPose().position.ToString());
-                        Debug.Log("onLocated pose rot: " + anchor.GetPose().rotation.ToString());
-                        spatialAnchors.Add(anchor);
-                        // SpawnNewAnchoredObject(anchor.GetPose().position, anchor.GetPose().rotation, true);
-                        if (spatialAnchors.Count == 1) {
-                            LoadSketchWithGivenAnchor(anchor.Identifier, anchor.GetPose().position, anchor.GetPose().rotation);
+                        Pose anchorPose = anchor.GetPose();
+                        Debug.Log("onLocated pose pos: " + anchorPose.position.ToString());
+                        Debug.Log("onLocated pose rot: " + anchorPose.rotation.ToString());
+                        float distance = Vector3.Distance(origin, anchorPose.position);
+                        if (System.IO.File.Exists(System.IO.Path.Combine(Application.persistentDataPath, anchor.Identifier + ".xml"))) {
+                            Debug.Log($"+ + + FOUND SKETCH WITH GIVEN ID {anchor.Identifier}!");
+                            spatialAnchors.Add(anchor);
+                            spatialAnchors.Sort((a, b) => {
+                                float dA = Vector3.Distance(origin, a.GetPose().position);
+                                float dB = Vector3.Distance(origin, b.GetPose().position);
+                                int sort = (int)(dB - dA);
+                                return sort;
+                            });
+                            //remove all previous buttons from list
+                            foreach (Transform child in listOfFoundAnchors.transform) {
+                                Destroy(child.gameObject);
+                            }
+                            //add button with correct list-order
+                            for (int i = 0; i < spatialAnchors.Count; i++) {
+                                Debug.Log(spatialAnchors[i].Identifier);
+                                GameObject newButton = Instantiate(foundAnchorButtonPrefab);
+                                newButton.GetComponentInChildren<TMPro.TMP_Text>().text = spatialAnchors[i].Identifier;
+                                newButton.transform.SetParent(listOfFoundAnchors.transform);
+                            }
+                            // if (spatialAnchors.Count == 1) {
+                            //     LoadSketchWithGivenAnchor(anchor.Identifier, anchor.GetPose().position, anchor.GetPose().rotation);
+                            // }
+                        } else {
+                            Debug.Log($"# # # NO SKETCH WITH GIVEN ID {anchor.Identifier} FOUND :( deleting that anchor");
+                            // DeleteAnchorWithoutLocating(anchor.Identifier);
                         }
                     } catch (Exception ex) {
                         Debug.LogError(ex);
@@ -258,5 +304,6 @@ public class SpatialAnchorsSetup : MonoBehaviour {
     private async void DeleteAnchorWithoutLocating(string anchorId) {
         var anchor = await spatialAnchorManager.Session.GetAnchorPropertiesAsync(anchorId);
         await spatialAnchorManager.Session.DeleteAnchorAsync(anchor);
+        Debug.Log($"- - - ANCHOR {anchor.Identifier} DELETED");
     }
 }

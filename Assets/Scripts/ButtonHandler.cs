@@ -13,11 +13,16 @@ public class ButtonHandler : MonoBehaviour {
     public SketchWorld SketchWorld;
     public DefaultReferences Defaults;
 
-    private string SavePath;
+    private SketchWorldManager sketchWorldManager;
+    private GameObject listOfFoundAnchors;
+
+    private string savePath;
 
     void Awake() {
         TouchAndHoldToSketchScript = GameObject.Find("Main").GetComponent<TouchAndHoldToSketch>();
         SpatialAnchorsSetup = GameObject.Find("AzureSpatialAnchors").GetComponent<SpatialAnchorsSetup>();
+        sketchWorldManager = GameObject.Find("Main").GetComponent<SketchWorldManager>();
+        listOfFoundAnchors = GameObject.Find("Located Sketches List");
     }
     public async void Save() {
         await SpatialAnchorsSetup.SetupCloudSessionAsync();
@@ -25,8 +30,8 @@ public class ButtonHandler : MonoBehaviour {
 
         //Serialize the SketchWorld to a XML file
         //SavePath = System.IO.Path.Combine(Application.persistentDataPath, "Sketch-" + System.DateTime.UtcNow.Year + "-" + System.DateTime.UtcNow.Month + "-" + System.DateTime.UtcNow.Day + "-" + System.DateTime.UtcNow.Minute + "-" + System.DateTime.UtcNow.Second + ".xml");
-        SavePath = System.IO.Path.Combine(Application.persistentDataPath, anchorId + ".xml");
-        SketchWorld.SaveSketchWorld(SavePath);
+        savePath = System.IO.Path.Combine(Application.persistentDataPath, anchorId + ".xml");
+        SketchWorld.SaveSketchWorld(savePath);
 
         //Export the SketchWorld as an OBJ file
         // SketchWorld.ExportSketchWorldToDefaultPath();
@@ -61,6 +66,15 @@ public class ButtonHandler : MonoBehaviour {
         await SpatialAnchorsSetup.SetupCloudSessionAsync();
         SpatialAnchorsSetup.ConfigureSensors();
         // await asaScript.FindNearbyAnchors();
+    }
+
+    public void LoadSketchWithIndex() {
+        int index = this.transform.GetSiblingIndex();
+        Debug.Log("index:" + index);
+        CloudSpatialAnchor anchor = SpatialAnchorsSetup.spatialAnchors[index];
+        Debug.Log("load anchor with id: " + anchor.Identifier);
+        sketchWorldManager.Load(SpatialAnchorsSetup.spatialAnchors[index]);
+        listOfFoundAnchors.SetActive(false);
     }
 
     public void SetLineDiameter(float diameter) {
