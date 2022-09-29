@@ -92,6 +92,10 @@ public class ButtonHandler : MonoBehaviour {
         TouchAndHoldToSketchScript.RestoreLastDeletedSketchObject();
     }
 
+    public void Clear() {
+        TouchAndHoldToSketchScript.ClearSketchWorld();
+    }
+
     public void SetAnchorProxyForRelativeSketching() {
         TouchAndHoldToSketchScript.SetAnchorProxy();
     }
@@ -111,5 +115,4 @@ public class ButtonHandler : MonoBehaviour {
         group.blocksRaycasts = false;
         group.interactable = false;
     }
-
 }

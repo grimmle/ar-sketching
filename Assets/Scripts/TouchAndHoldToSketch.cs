@@ -12,6 +12,7 @@ namespace Sketching {
     using VRSketchingGeometry.Commands;
     using VRSketchingGeometry.Commands.Line;
     using VRSketchingGeometry.Serialization;
+    using VRSketchingGeometry;
 
     public enum DrawingMode { Screen, Air }
 
@@ -19,6 +20,7 @@ namespace Sketching {
         public Camera Camera;
         public SketchWorld SketchWorld;
         public GameObject SketchObjectPrefab;
+        public DefaultReferences defaults;
 
         //color picker to extract current color
         public ColorPicker ColorPicker;
@@ -139,7 +141,7 @@ namespace Sketching {
                             CreateNewLineSketchObject();
                             startNewSketchObject = false;
                         } else if (currentLineSketchObject) {
-                            // draw at current touch position
+                            //draw at current touch position
                             var touchPos = Camera.main.ScreenToWorldPoint(new Vector3(currentTouch.position.x, currentTouch.position.y, 0.3f));
                             new AddControlPointContinuousCommand(currentLineSketchObject, touchPos).Execute();
                         }
@@ -213,8 +215,19 @@ namespace Sketching {
             invoker.Redo();
         }
 
+        public void ClearSketchWorld() {
+            // Debug.Log("RootSketchObjectGroup children: " + SketchWorld.transform.Find("RootSketchObjectGroup").transform.childCount);
+            foreach (Transform child in SketchWorld.transform.Find("RootSketchObjectGroup").transform) {
+                Destroy(child.gameObject);
+                // new DeleteObjectCommand(child.gameObject.GetComponent<SketchObject>(), SketchWorld).Execute();
+            }
+            //reset SketchWorld transform
+            SketchWorld.transform.position = new Vector3(0, 0, 0);
+            SketchWorld.transform.rotation = new Quaternion();
+        }
+
         public void SetAnchorProxy() {
-            // set proxy anchor to current BrushMarker position
+            //set proxy anchor to current BrushMarker position
             if (currentProxyAnchor == null) {
                 currentProxyAnchor = Instantiate(AnchorPlanePrefab, BrushMarker.transform.position, BrushMarker.transform.rotation);
                 currentProxyAnchorPlane = new Plane(-Camera.transform.forward, currentProxyAnchor.transform.position);
