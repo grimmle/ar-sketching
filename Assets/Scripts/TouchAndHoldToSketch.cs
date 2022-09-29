@@ -74,10 +74,10 @@ namespace Sketching {
         }
 
         public void Update() {
-            if (currentProxyAnchor) {
-                currentProxyAnchor.transform.LookAt(Camera.transform.position);
-                currentProxyAnchorPlane.SetNormalAndPosition(currentProxyAnchor.transform.forward, currentProxyAnchor.transform.position);
-            }
+            // if (currentProxyAnchor) {
+            //     currentProxyAnchor.transform.LookAt(Camera.transform.position);
+            //     currentProxyAnchorPlane.SetNormalAndPosition(currentProxyAnchor.transform.forward, currentProxyAnchor.transform.position);
+            // }
 
             if (Input.touchCount > 0) {
                 Touch currentTouch = Input.GetTouch(0);
@@ -246,6 +246,8 @@ namespace Sketching {
                 currentProxyAnchor.transform.position = BrushMarker.transform.position;
                 Debug.Log($"PROXY ANCHOR MOVED TO {BrushMarker.transform.position.ToString()}");
             }
+            currentProxyAnchor.transform.LookAt(Camera.transform.position);
+            currentProxyAnchorPlane.SetNormalAndPosition(currentProxyAnchor.transform.forward, currentProxyAnchor.transform.position);
             isSketchingRelatively = true;
         }
 
