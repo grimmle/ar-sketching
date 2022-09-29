@@ -39,9 +39,8 @@ namespace Sketching {
         private GameObject currentProxyAnchorBrush;
         //null parented to camera movement
         private GameObject currentProxyAnchorNull;
-
-        private bool isSketchingRelativelyInSpace = false;
-        private bool isFrozen = false;
+        //drawing relative to the actual device position
+        private bool isSketchingRelatively = false;
 
         //BUTTONS
         private GameObject toggleSpaceBtn;
@@ -96,7 +95,7 @@ namespace Sketching {
                             startNewSketchObject = false;
 
                             //if sketching relatively, raycast from viewport center to anchorPlane, set anchorNull and start drawing from that hitpoint
-                            if (isSketchingRelativelyInSpace && currentProxyAnchor != null) {
+                            if (isSketchingRelatively && currentProxyAnchor != null) {
                                 Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
                                 float enter = 0.0f;
                                 Camera.transform.parent = null;
@@ -127,7 +126,7 @@ namespace Sketching {
                             }
                         } else if (currentLineSketchObject) {
                             //add new control point according to current device position or active proxy
-                            if (isSketchingRelativelyInSpace && currentProxyAnchorBrush != null) {
+                            if (isSketchingRelatively && currentProxyAnchorBrush != null) {
                                 //get camera position relative to hitpoint origin and create sketch there
                                 var relativeCameraPos = getRelativePosition(currentProxyAnchorNull.transform, Camera.transform.position);
                                 currentProxyAnchorBrush.transform.localPosition = relativeCameraPos;
@@ -141,9 +140,20 @@ namespace Sketching {
                             CreateNewLineSketchObject();
                             startNewSketchObject = false;
                         } else if (currentLineSketchObject) {
-                            //draw at current touch position
-                            var touchPos = Camera.main.ScreenToWorldPoint(new Vector3(currentTouch.position.x, currentTouch.position.y, 0.3f));
-                            new AddControlPointContinuousCommand(currentLineSketchObject, touchPos).Execute();
+                            //if sketching relatively, raycast from screen touchPoint to anchorPlane
+                            if (isSketchingRelatively && currentProxyAnchor != null) {
+                                Ray ray = Camera.main.ScreenPointToRay(new Vector3(currentTouch.position.x, currentTouch.position.y, 0f));
+                                float enter = 0.0f;
+
+                                if (currentProxyAnchorPlane.Raycast(ray, out enter)) {
+                                    Vector3 hitPoint = ray.GetPoint(enter);
+                                    new AddControlPointContinuousCommand(currentLineSketchObject, hitPoint).Execute();
+                                }
+                            } else {
+                                //draw at current absolute touch position
+                                var touchPos = Camera.main.ScreenToWorldPoint(new Vector3(currentTouch.position.x, currentTouch.position.y, 0.3f));
+                                new AddControlPointContinuousCommand(currentLineSketchObject, touchPos).Execute();
+                            }
                         }
 
                     } else if (currentTouch.phase == TouchPhase.Ended) {
@@ -236,20 +246,22 @@ namespace Sketching {
                 currentProxyAnchor.transform.position = BrushMarker.transform.position;
                 Debug.Log($"PROXY ANCHOR MOVED TO {BrushMarker.transform.position.ToString()}");
             }
-            isSketchingRelativelyInSpace = true;
+            isSketchingRelatively = true;
         }
 
         public void ToggleAirSketchingSpace() {
-            if (isSketchingRelativelyInSpace) {
-                //disable realtive sketching
-                isSketchingRelativelyInSpace = false;
+            if (isSketchingRelatively) {
+                //disable relative sketching
+                isSketchingRelatively = false;
                 toggleSpaceBtn.GetComponentInChildren<TMP_Text>().text = "ABSOLUTE";
                 setProxyAnchorBtn.SetActive(false);
+                if (currentProxyAnchor != null) currentProxyAnchor.SetActive(false);
             } else {
-                isSketchingRelativelyInSpace = true;
-                if (currentProxyAnchor == null) SetAnchorProxy();
+                isSketchingRelatively = true;
                 toggleSpaceBtn.GetComponentInChildren<TMP_Text>().text = "RELATIVE";
                 setProxyAnchorBtn.SetActive(true);
+                if (currentProxyAnchor == null) SetAnchorProxy();
+                currentProxyAnchor.SetActive(true);
             }
         }
 
@@ -258,14 +270,16 @@ namespace Sketching {
                 drawingMode = DrawingMode.Screen;
                 toggleModeBtn.GetComponentInChildren<TMP_Text>().text = "screen";
                 BrushMarker.SetActive(false);
-                currentProxyAnchor.SetActive(true);
+                //set absolute air drawing as default when switching back
+                if (isSketchingRelatively) ToggleAirSketchingSpace();
+                if (currentProxyAnchor != null) currentProxyAnchor.SetActive(false);
             } else {
                 drawingMode = DrawingMode.Air;
                 toggleModeBtn.GetComponentInChildren<TMP_Text>().text = "air";
                 BrushMarker.SetActive(true);
                 //set absolute air drawing as default when switching back
-                if (isSketchingRelativelyInSpace) ToggleAirSketchingSpace();
-                currentProxyAnchor.SetActive(false);
+                if (isSketchingRelatively) ToggleAirSketchingSpace();
+                if (currentProxyAnchor != null) currentProxyAnchor.SetActive(false);
             }
         }
 

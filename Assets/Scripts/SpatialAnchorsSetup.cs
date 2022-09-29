@@ -91,10 +91,11 @@ public class SpatialAnchorsSetup : MonoBehaviour {
             // };
 
             spatialAnchorManager.Session.LocationProvider = locationProvider;
+            Debug.Log("Set up Location Provider");
         }
 
         NearDeviceCriteria criteria = new NearDeviceCriteria();
-        criteria.DistanceInMeters = 500;
+        criteria.DistanceInMeters = 2000;
         criteria.MaxResultCount = 10;
 
         anchorLocateCriteria = new AnchorLocateCriteria();
@@ -268,7 +269,7 @@ public class SpatialAnchorsSetup : MonoBehaviour {
             case LocateAnchorStatus.AlreadyTracked:
                 Debug.Log("LocateAnchorStatus.AlreadyTracked");
                 // This anchor has already been reported and is being tracked
-                SpawnNewAnchoredObject(anchor.GetPose().position, anchor.GetPose().rotation, true);
+                // SpawnNewAnchoredObject(anchor.GetPose().position, anchor.GetPose().rotation, true);
                 break;
             case LocateAnchorStatus.NotLocatedAnchorDoesNotExist:
                 Debug.Log("LocateAnchorStatus.NotLocatedAnchorDoesNotExist");
