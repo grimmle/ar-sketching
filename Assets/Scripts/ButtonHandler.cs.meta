@@ -3,7 +3,11 @@ guid: 580afb908b7a24f53b038843a83b283a
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - SketchWorld: {instanceID: 0}
+  - Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
+  - _colorButton: {fileID: 2285770349897441723, guid: 24a2a668f88354be9b482614e161f1cd,
+      type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

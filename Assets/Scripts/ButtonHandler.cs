@@ -5,6 +5,7 @@ using VRSketchingGeometry;
 using VRSketchingGeometry.SketchObjectManagement;
 using Microsoft.Azure.SpatialAnchors;
 using Microsoft.Azure.SpatialAnchors.Unity;
+using UnityEngine.UI;
 
 public class ButtonHandler : MonoBehaviour {
     TouchAndHoldToSketch TouchAndHoldToSketchScript;
@@ -16,14 +17,22 @@ public class ButtonHandler : MonoBehaviour {
     private SketchWorldManager sketchWorldManager;
     private GameObject foundAnchorsOverlay;
 
+    private ColorMenu ColorMenuScript;
+
+    private GameObject diameterMenu;
+    private bool diameterMenuIsOpen;
+
     private string savePath;
 
     void Awake() {
         TouchAndHoldToSketchScript = GameObject.Find("Main").GetComponent<TouchAndHoldToSketch>();
+        ColorMenuScript = GameObject.Find("Main").GetComponent<ColorMenu>();
         SpatialAnchorsSetup = GameObject.Find("AzureSpatialAnchors").GetComponent<SpatialAnchorsSetup>();
         sketchWorldManager = GameObject.Find("Main").GetComponent<SketchWorldManager>();
         foundAnchorsOverlay = GameObject.Find("Located Sketches List");
+        diameterMenu = GameObject.Find("Diameter Menu");
     }
+
     public async void Save() {
         await SpatialAnchorsSetup.SetupCloudSessionAsync();
         var anchorId = await SpatialAnchorsSetup.SaveCurrentObjectAnchorToCloudAsync();
@@ -90,5 +99,18 @@ public class ButtonHandler : MonoBehaviour {
         group.alpha = 0;
         group.blocksRaycasts = false;
         group.interactable = false;
+    }
+
+    public void ToggleColorMenu() {
+        if (ColorMenu.IsOpen) {
+            ColorMenuScript.Close();
+        } else {
+            ColorMenuScript.Open();
+        }
+    }
+
+    public void ChooseColor() {
+        Color color = this.transform.Find("Mask").transform.Find("Color").GetComponent<Image>().color;
+        ColorMenuScript.SetColor(color);
     }
 }

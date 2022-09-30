@@ -195,8 +195,10 @@ namespace Sketching {
             var gameObject = Instantiate(SketchObjectPrefab);
             var renderer = gameObject.GetComponent<Renderer>();
             var newMat = renderer.sharedMaterial;
-            newMat.color = ColorPicker.color;
-            renderer.material.color = ColorPicker.color;
+            // newMat.color = ColorPicker.color;
+            // renderer.material.color = ColorPicker.color;
+            newMat.color = ColorMenu.CurrentColor;
+            renderer.material.color = ColorMenu.CurrentColor;
 
             currentLineSketchObject = gameObject.GetComponent<LineSketchObject>();
             currentLineSketchObject.minimumControlPointDistance = .02f;
