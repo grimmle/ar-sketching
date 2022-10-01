@@ -153,7 +153,7 @@ public class SpatialAnchorsSetup : MonoBehaviour {
         if (cloudNativeAnchor.CloudAnchor == null) { await cloudNativeAnchor.NativeToCloud(); }
 
         CloudSpatialAnchor cloudSpatialAnchor = cloudNativeAnchor.CloudAnchor;
-        cloudSpatialAnchor.Expiration = DateTimeOffset.Now.AddDays(1);
+        // cloudSpatialAnchor.Expiration = DateTimeOffset.Now.AddDays(7);
 
         while (!spatialAnchorManager.IsReadyForCreate) {
             anchorCreationProgress.gameObject.SetActive(true);
