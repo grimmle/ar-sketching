@@ -3,7 +3,6 @@
 
 namespace Sketching {
     using UnityEngine;
-    using UnityEngine.UI;
     using TMPro;
     using UnityEngine.EventSystems;
     using UnityEngine.XR.ARFoundation;
@@ -22,8 +21,6 @@ namespace Sketching {
         public GameObject SketchObjectPrefab;
         public DefaultReferences defaults;
 
-        //color picker to extract current color
-        public ColorPicker ColorPicker;
         //indicator for where new objects are drawn from
         public GameObject BrushMarker;
 
@@ -46,8 +43,6 @@ namespace Sketching {
         private GameObject toggleSpaceBtn;
         private GameObject setProxyAnchorBtn;
         private GameObject toggleModeBtn;
-
-        public static float lineDiameter = 0.02f;
 
         private ARAnchor worldAnchor;
         private LineSketchObject currentLineSketchObject;
@@ -115,13 +110,9 @@ namespace Sketching {
                                     currentProxyAnchorNull.transform.position = Camera.transform.position;
 
                                     //brush from where new lines are drawn
-                                    currentProxyAnchorBrush = new GameObject();
-                                    currentProxyAnchorBrush.transform.position = currentHitpoint.transform.position;
+                                    currentProxyAnchorBrush = Instantiate(BrushMarker, hitPoint, Quaternion.identity);
+                                    // currentProxyAnchorBrush.transform.position = currentHitpoint.transform.position;
                                     currentProxyAnchorBrush.transform.SetParent(currentHitpoint.transform);
-
-                                    //visualization for the brush marker relative to proxy anchor
-                                    var brushMarkerRelativeSpace = Instantiate(BrushMarker, hitPoint, Quaternion.identity);
-                                    brushMarkerRelativeSpace.transform.SetParent(currentProxyAnchorBrush.transform);
                                 }
                             }
                         } else if (currentLineSketchObject) {
@@ -135,7 +126,7 @@ namespace Sketching {
                                 new AddControlPointContinuousCommand(currentLineSketchObject, BrushMarker.transform.position).Execute();
                             }
                         }
-                    } else if (drawingMode == DrawingMode.Screen && currentTouch.phase == TouchPhase.Moved) {
+                    } else if (drawingMode == DrawingMode.Screen && (currentTouch.phase == TouchPhase.Stationary || currentTouch.phase == TouchPhase.Moved)) {
                         if (startNewSketchObject) {
                             CreateNewLineSketchObject();
                             startNewSketchObject = false;
@@ -204,7 +195,7 @@ namespace Sketching {
             currentLineSketchObject.minimumControlPointDistance = .02f;
             LineBrush brush = currentLineSketchObject.GetBrush() as LineBrush;
             brush.SketchMaterial = new SketchMaterialData(newMat);
-            brush.CrossSectionScale = lineDiameter;
+            brush.CrossSectionScale = DiameterMenu.CurrentDiameter;
             brush.InterpolationSteps = 5;
             currentLineSketchObject.SetBrush(brush);
         }

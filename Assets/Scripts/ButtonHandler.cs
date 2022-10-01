@@ -1,11 +1,10 @@
-using System.IO;
 using UnityEngine;
 using Sketching;
 using VRSketchingGeometry;
 using VRSketchingGeometry.SketchObjectManagement;
 using Microsoft.Azure.SpatialAnchors;
-using Microsoft.Azure.SpatialAnchors.Unity;
 using UnityEngine.UI;
+using TMPro;
 
 public class ButtonHandler : MonoBehaviour {
     TouchAndHoldToSketch TouchAndHoldToSketchScript;
@@ -18,6 +17,7 @@ public class ButtonHandler : MonoBehaviour {
     private GameObject foundAnchorsOverlay;
 
     private ColorMenu ColorMenuScript;
+    private DiameterMenu DiameterMenuScript;
 
     private GameObject diameterMenu;
     private bool diameterMenuIsOpen;
@@ -27,10 +27,11 @@ public class ButtonHandler : MonoBehaviour {
     void Awake() {
         TouchAndHoldToSketchScript = GameObject.Find("Main").GetComponent<TouchAndHoldToSketch>();
         ColorMenuScript = GameObject.Find("Main").GetComponent<ColorMenu>();
+        DiameterMenuScript = GameObject.Find("Main").GetComponent<DiameterMenu>();
+
         SpatialAnchorsSetup = GameObject.Find("AzureSpatialAnchors").GetComponent<SpatialAnchorsSetup>();
         sketchWorldManager = GameObject.Find("Main").GetComponent<SketchWorldManager>();
         foundAnchorsOverlay = GameObject.Find("Located Sketches List");
-        diameterMenu = GameObject.Find("Diameter Menu");
     }
 
     public async void Save() {
@@ -63,10 +64,6 @@ public class ButtonHandler : MonoBehaviour {
         group.alpha = 0;
         group.blocksRaycasts = false;
         group.interactable = false;
-    }
-
-    public void SetLineDiameter(float diameter) {
-        TouchAndHoldToSketch.lineDiameter = diameter;
     }
 
     public void Undo() {
@@ -112,5 +109,18 @@ public class ButtonHandler : MonoBehaviour {
     public void ChooseColor() {
         Color color = this.transform.Find("Mask").transform.Find("Color").GetComponent<Image>().color;
         ColorMenuScript.SetColor(color);
+    }
+
+    public void ToggleDiameterMenu() {
+        if (DiameterMenu.IsOpen) {
+            DiameterMenuScript.Close();
+        } else {
+            DiameterMenuScript.Open();
+        }
+    }
+
+    public void ChooseDiameter() {
+        string diameter = this.transform.Find("Diameter").GetComponent<TMP_Text>().text;
+        DiameterMenuScript.SetDiameter(diameter);
     }
 }

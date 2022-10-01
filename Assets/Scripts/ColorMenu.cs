@@ -1,4 +1,3 @@
-using Sketching;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -43,7 +42,6 @@ public class ColorMenu : MonoBehaviour {
     }
 
     public void SetColor(Color color) {
-        Debug.Log("choosing color " + color.ToString());
         CurrentColor = color;
         currentColorImage.color = color;
         Close();
