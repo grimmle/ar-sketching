@@ -36,6 +36,8 @@ namespace Sketching {
         private GameObject currentProxyAnchorBrush;
         //null parented to camera movement
         private GameObject currentProxyAnchorNull;
+        //for relative air drawing, keep relative position in between touch inputs
+        private bool continueOnSameAnchor;
         //drawing relative to the actual device position
         private bool isSketchingRelatively = false;
 
@@ -73,6 +75,11 @@ namespace Sketching {
             //     currentProxyAnchor.transform.LookAt(Camera.transform.position);
             //     currentProxyAnchorPlane.SetNormalAndPosition(currentProxyAnchor.transform.forward, currentProxyAnchor.transform.position);
             // }
+            if (currentProxyAnchorBrush && currentProxyAnchorNull) {
+                //get camera position relative to hitpoint origin
+                var relativeCameraPos = getRelativePosition(currentProxyAnchorNull.transform, Camera.transform.position);
+                currentProxyAnchorBrush.transform.localPosition = relativeCameraPos;
+            }
 
             if (Input.touchCount > 0) {
                 Touch currentTouch = Input.GetTouch(0);
@@ -90,7 +97,7 @@ namespace Sketching {
                             startNewSketchObject = false;
 
                             //if sketching relatively, raycast from viewport center to anchorPlane, set anchorNull and start drawing from that hitpoint
-                            if (isSketchingRelatively && currentProxyAnchor != null) {
+                            if (isSketchingRelatively && currentProxyAnchor != null && !continueOnSameAnchor) {
                                 Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
                                 float enter = 0.0f;
                                 Camera.transform.parent = null;
@@ -111,16 +118,15 @@ namespace Sketching {
 
                                     //brush from where new lines are drawn
                                     currentProxyAnchorBrush = Instantiate(BrushMarker, hitPoint, Quaternion.identity);
-                                    // currentProxyAnchorBrush.transform.position = currentHitpoint.transform.position;
                                     currentProxyAnchorBrush.transform.SetParent(currentHitpoint.transform);
+                                    continueOnSameAnchor = true;
+                                    BrushMarker.SetActive(false);
                                 }
                             }
                         } else if (currentLineSketchObject) {
                             //add new control point according to current device position or active proxy
                             if (isSketchingRelatively && currentProxyAnchorBrush != null) {
-                                //get camera position relative to hitpoint origin and create sketch there
-                                var relativeCameraPos = getRelativePosition(currentProxyAnchorNull.transform, Camera.transform.position);
-                                currentProxyAnchorBrush.transform.localPosition = relativeCameraPos;
+                                //create sketch from relative brush position
                                 new AddControlPointContinuousCommand(currentLineSketchObject, currentProxyAnchorBrush.transform.position).Execute();
                             } else {
                                 new AddControlPointContinuousCommand(currentLineSketchObject, BrushMarker.transform.position).Execute();
@@ -186,8 +192,7 @@ namespace Sketching {
             var gameObject = Instantiate(SketchObjectPrefab);
             var renderer = gameObject.GetComponent<Renderer>();
             var newMat = renderer.sharedMaterial;
-            // newMat.color = ColorPicker.color;
-            // renderer.material.color = ColorPicker.color;
+
             newMat.color = ColorMenu.CurrentColor;
             renderer.material.color = ColorMenu.CurrentColor;
 
@@ -229,6 +234,12 @@ namespace Sketching {
             SketchWorld.transform.rotation = new Quaternion();
         }
 
+        private void ResetBrushmarker() {
+            Destroy(currentProxyAnchorBrush);
+            if (drawingMode == DrawingMode.Air) BrushMarker.SetActive(true);
+            continueOnSameAnchor = false;
+        }
+
         public void SetAnchorProxy() {
             //set proxy anchor to current BrushMarker position
             if (currentProxyAnchor == null) {
@@ -242,6 +253,8 @@ namespace Sketching {
             currentProxyAnchor.transform.LookAt(Camera.transform.position);
             currentProxyAnchorPlane.SetNormalAndPosition(currentProxyAnchor.transform.forward, currentProxyAnchor.transform.position);
             isSketchingRelatively = true;
+
+            ResetBrushmarker();
         }
 
         public void ToggleAirSketchingSpace() {
@@ -251,6 +264,7 @@ namespace Sketching {
                 toggleSpaceBtn.GetComponentInChildren<TMP_Text>().text = "ABSOLUTE";
                 setProxyAnchorBtn.SetActive(false);
                 if (currentProxyAnchor != null) currentProxyAnchor.SetActive(false);
+                ResetBrushmarker();
             } else {
                 isSketchingRelatively = true;
                 toggleSpaceBtn.GetComponentInChildren<TMP_Text>().text = "RELATIVE";
