@@ -76,6 +76,7 @@ public class ButtonHandler : MonoBehaviour {
 
     public void Clear() {
         TouchAndHoldToSketchScript.ClearSketchWorld();
+        SpatialAnchorsSetup.CleanupSpawnedObjects();
     }
 
     public void SetAnchorProxyForRelativeSketching() {
