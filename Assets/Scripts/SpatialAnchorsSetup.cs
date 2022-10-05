@@ -53,16 +53,17 @@ public class SpatialAnchorsSetup : MonoBehaviour {
     // }
 
     public async Task SetupCloudSessionAsync() {
-        if (spatialAnchorManager.Session == null) {
-            anchorLocateCriteria = new AnchorLocateCriteria();
-            await spatialAnchorManager.CreateSessionAsync();
-            Debug.Log("### SESSION CREATED ###");
-            await spatialAnchorManager.StartSessionAsync();
-            Debug.Log("### SESSION STARTED ###");
+        if (spatialAnchorManager.Session != null) {
+            await StopCloudSessionAsync();
         }
+        anchorLocateCriteria = new AnchorLocateCriteria();
+        await spatialAnchorManager.CreateSessionAsync();
+        Debug.Log("### SESSION CREATED ###");
+        await spatialAnchorManager.StartSessionAsync();
+        Debug.Log("### SESSION STARTED ###");
     }
 
-    public async void StopCloudSessionAsync() {
+    public async Task StopCloudSessionAsync() {
         spatialAnchorManager.StopSession();
         await spatialAnchorManager.ResetSessionAsync();
         currentWatcher = null;
@@ -70,9 +71,10 @@ public class SpatialAnchorsSetup : MonoBehaviour {
         CleanupSpawnedObjects();
     }
 
-    private void CleanupSpawnedObjects() {
+    public void CleanupSpawnedObjects() {
         Destroy(spawnedAnchorObject);
         spawnedAnchorObject = null;
+        anchorCreationProgress.text = "";
     }
 
     public void ConfigureSensors() {
@@ -95,22 +97,34 @@ public class SpatialAnchorsSetup : MonoBehaviour {
         }
 
         NearDeviceCriteria criteria = new NearDeviceCriteria();
-        criteria.DistanceInMeters = 2000;
-        criteria.MaxResultCount = 10;
+        criteria.DistanceInMeters = 1000;
+        criteria.MaxResultCount = 25;
 
         anchorLocateCriteria = new AnchorLocateCriteria();
 
-        // anchorLocateCriteria.Identifiers = new string[] { "d9ace388-0e20-4148-a06b-c5520a135a95" };
-        anchorLocateCriteria.Identifiers = new string[] {
-            "246f7ba6-8854-40e6-b6b2-c2f9b394aec6",
-            "ee66b20a-8fbb-42e9-bbb1-e68f5683b363",
-            "c3641b09-0585-40af-af4b-735afaab9b33",
-            "fbdce9a0-e005-4b84-9184-59751e90974a",
-            "17f3901f-29ed-4ca8-907f-4b4f2ff27fdd",
-            "ba02780e-2c5d-4146-9113-711599607d20",
-            "d1e9a626-3ac2-4de9-93fe-3cc43c5eca49",
-        };
-        // anchorLocateCriteria.NearDevice = criteria;
+        // anchorLocateCriteria.Identifiers = new string[] { 
+        //     "d9ace388-0e20-4148-a06b-c5520a135a95" 
+        // };
+        // anchorLocateCriteria.Identifiers = new string[] {
+        //     "246f7ba6-8854-40e6-b6b2-c2f9b394aec6",
+        //     "ee66b20a-8fbb-42e9-bbb1-e68f5683b363",
+        //     "c3641b09-0585-40af-af4b-735afaab9b33",
+        //     "fbdce9a0-e005-4b84-9184-59751e90974a",
+        //     "17f3901f-29ed-4ca8-907f-4b4f2ff27fdd",
+        //     "ba02780e-2c5d-4146-9113-711599607d20",
+        //     "d1e9a626-3ac2-4de9-93fe-3cc43c5eca49",
+        // };
+        // anchorLocateCriteria.Identifiers = new string[] {
+        //     "cbbb30f2-d50e-4828-aa76-4f4bdab27731",
+        //     "2b5a300d-21a3-4ffc-90ba-192a43c64c9c",
+        // };
+        if (anchorIdsToLocate.Count > 0) {
+            // look for specified anchorIds
+            anchorLocateCriteria.Identifiers = anchorIdsToLocate.ToArray();
+        } else {
+            // look for anchors via geolocalization
+            anchorLocateCriteria.NearDevice = criteria;
+        }
 
         if (spatialAnchorManager.Session.GetActiveWatchers().Count < 1) {
             currentWatcher = CreateWatcher();
@@ -118,24 +132,6 @@ public class SpatialAnchorsSetup : MonoBehaviour {
             //watcher already active
             DisplayFoundAnchors();
         }
-    }
-
-    public void SetAnchorIdsToLocate(string[] anchorIds) {
-        if (anchorIds == null) {
-            throw new ArgumentNullException(nameof(anchorIds));
-        }
-
-        // anchorLocateCriteria.NearAnchor = new NearAnchorCriteria();
-
-        anchorIdsToLocate.Clear();
-        anchorIdsToLocate.AddRange(anchorIds);
-
-        anchorLocateCriteria.Identifiers = anchorIds;
-        Debug.Log("anchorLocateCriteria.Identifiers");
-        for (int i = 0; i < anchorLocateCriteria.Identifiers.Length; i++) {
-            Debug.Log(anchorLocateCriteria.Identifiers[i]);
-        }
-        currentWatcher = CreateWatcher();
     }
 
     public async Task SaveAnchorToCloudAsync() {
@@ -176,6 +172,8 @@ public class SpatialAnchorsSetup : MonoBehaviour {
             Debug.LogError("ASA - Failed to save, but no exception was thrown.");
             return null;
         }
+        // add id, so anchor can be found in the same session
+        anchorIdsToLocate.Add(cloudSpatialAnchor.Identifier);
 
         Debug.Log($"ASA - Saved cloud anchor with ID: {cloudSpatialAnchor.Identifier}");
         spawnedAnchorObject.GetComponent<MeshRenderer>().material.color = Color.green;
@@ -259,7 +257,7 @@ public class SpatialAnchorsSetup : MonoBehaviour {
                             DisplayFoundAnchors();
                         } else {
                             Debug.Log($"# # # NO SKETCH WITH GIVEN ID {anchor.Identifier} FOUND :( deleting that anchor");
-                            // DeleteAnchorWithoutLocating(anchor.Identifier);
+                            // DeleteAnchorWithId(anchor.Identifier);
                         }
                     } catch (Exception ex) {
                         Debug.LogError(ex);
@@ -295,7 +293,7 @@ public class SpatialAnchorsSetup : MonoBehaviour {
         }
     }
 
-    private async void DeleteAnchorWithoutLocating(string anchorId) {
+    private async void DeleteAnchorWithId(string anchorId) {
         var anchor = await spatialAnchorManager.Session.GetAnchorPropertiesAsync(anchorId);
         await spatialAnchorManager.Session.DeleteAnchorAsync(anchor);
         Debug.Log($"- - - ANCHOR {anchor.Identifier} DELETED");
