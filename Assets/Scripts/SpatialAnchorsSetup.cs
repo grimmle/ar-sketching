@@ -1,12 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using Microsoft.Azure.SpatialAnchors.Unity;
-using Microsoft.Azure.SpatialAnchors;
-using UnityEngine.Networking;
 using System;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.IO;
+using System.Collections.Generic;
+using UnityEngine;
+using Microsoft.Azure.SpatialAnchors;
+using Microsoft.Azure.SpatialAnchors.Unity;
 
 public class SpatialAnchorsSetup : MonoBehaviour {
     [SerializeField]
@@ -102,22 +101,8 @@ public class SpatialAnchorsSetup : MonoBehaviour {
 
         anchorLocateCriteria = new AnchorLocateCriteria();
 
-        // anchorLocateCriteria.Identifiers = new string[] { 
-        //     "d9ace388-0e20-4148-a06b-c5520a135a95" 
-        // };
-        // anchorLocateCriteria.Identifiers = new string[] {
-        //     "246f7ba6-8854-40e6-b6b2-c2f9b394aec6",
-        //     "ee66b20a-8fbb-42e9-bbb1-e68f5683b363",
-        //     "c3641b09-0585-40af-af4b-735afaab9b33",
-        //     "fbdce9a0-e005-4b84-9184-59751e90974a",
-        //     "17f3901f-29ed-4ca8-907f-4b4f2ff27fdd",
-        //     "ba02780e-2c5d-4146-9113-711599607d20",
-        //     "d1e9a626-3ac2-4de9-93fe-3cc43c5eca49",
-        // };
-        // anchorLocateCriteria.Identifiers = new string[] {
-        //     "cbbb30f2-d50e-4828-aa76-4f4bdab27731",
-        //     "2b5a300d-21a3-4ffc-90ba-192a43c64c9c",
-        // };
+        // find ids of all local sketches
+        FindLocalSketched();
         if (anchorIdsToLocate.Count > 0) {
             // look for specified anchorIds
             anchorLocateCriteria.Identifiers = anchorIdsToLocate.ToArray();
@@ -184,15 +169,13 @@ public class SpatialAnchorsSetup : MonoBehaviour {
 
     protected virtual GameObject SpawnNewAnchoredObject(Vector3 worldPos, Quaternion worldRot, [Optional] bool found) {
         Debug.Log("+++ spawning new game obj");
-        // Create the prefab
+        // create anchor prefab
         GameObject newGameObject = GameObject.Instantiate(anchoredObjectPrefab, worldPos, worldRot);
         if (found) {
             newGameObject.GetComponent<MeshRenderer>().material.color = Color.red;
         }
-        // Attach a cloud-native anchor behavior to help keep cloud
-        // and native anchors in sync.
+        // attach a cloud-native anchor behavior to help keep cloud and native anchors in sync
         newGameObject.AddComponent<CloudNativeAnchor>();
-        // Return created object
         return newGameObject;
     }
 
@@ -316,6 +299,16 @@ public class SpatialAnchorsSetup : MonoBehaviour {
             GameObject newButton = Instantiate(foundAnchorButtonPrefab);
             newButton.GetComponentInChildren<TMPro.TMP_Text>().text = spatialAnchors[i].Identifier;
             newButton.transform.SetParent(listOfFoundAnchors.transform);
+        }
+    }
+
+    private void FindLocalSketched() {
+        DirectoryInfo d = new DirectoryInfo(Application.persistentDataPath);
+        string fileName = "";
+        foreach (var file in d.GetFiles("*.xml")) {
+            fileName = Path.GetFileNameWithoutExtension(file.FullName);
+            // Debug.Log(fileName);
+            anchorIdsToLocate.Add(fileName);
         }
     }
 }
