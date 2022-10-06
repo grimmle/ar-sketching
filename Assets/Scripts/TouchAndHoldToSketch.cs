@@ -90,7 +90,7 @@ namespace Sketching {
                 if (isValidTouch) {
                     if (currentTouch.phase == TouchPhase.Began) {
                         startNewSketchObject = true;
-                    } else if (drawingMode == DrawingMode.Air && (currentTouch.phase == TouchPhase.Stationary || (currentTouch.phase == TouchPhase.Moved && startNewSketchObject == false && currentLineSketchObject.getNumberOfControlPoints() > 0))) {
+                    } else if (drawingMode == DrawingMode.Air && (currentTouch.phase == TouchPhase.Stationary || currentTouch.phase == TouchPhase.Moved)) {
                         if (startNewSketchObject) {
                             //create a new sketch object
                             CreateNewLineSketchObject();

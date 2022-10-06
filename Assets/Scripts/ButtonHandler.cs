@@ -49,11 +49,12 @@ public class ButtonHandler : MonoBehaviour {
     public async void LookForNearbySketches() {
         // start asa cloud session and start looking for nearby anchors
         Debug.Log("LookForNearbySketches");
-        await SpatialAnchorsSetup.SetupCloudSessionAsync();
-        SpatialAnchorsSetup.ConfigureSensors();
+        await SpatialAnchorsSetup.SetupCloudSessionAsync(true);
+        // SpatialAnchorsSetup.ConfigureSensors();
     }
 
     public void LoadSketchWithIndex() {
+        Clear();
         int index = this.transform.GetSiblingIndex();
         Debug.Log("index:" + index);
         CloudSpatialAnchor anchor = SpatialAnchorsSetup.spatialAnchors[index];
