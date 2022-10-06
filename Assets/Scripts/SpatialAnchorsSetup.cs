@@ -109,10 +109,12 @@ public class SpatialAnchorsSetup : MonoBehaviour {
 
         anchorLocateCriteria = new AnchorLocateCriteria();
 
-        //find ids of all local sketches
+        //find ids of all local sketches 
+        //!!! looking for more than 40 ids seems to throw an unexpected ASA error !!!
         FindLocalSketches();
         //FindNearbyAnchors();
         if (anchorIdsToLocate.Count > 0) {
+            Debug.Log($"anchorIdsToLocate.Count: {anchorIdsToLocate.Count}");
             //look for specified anchorIds
             anchorLocateCriteria.Identifiers = anchorIdsToLocate.ToArray();
         } else {
@@ -312,7 +314,7 @@ public class SpatialAnchorsSetup : MonoBehaviour {
         foreach (var file in d.GetFiles("*.xml")) {
             string fileName = Path.GetFileNameWithoutExtension(file.FullName);
             Debug.Log($"sketch: {fileName}");
-            anchorIdsToLocate.Add(fileName);
+            if (anchorIdsToLocate.Count <= 20) anchorIdsToLocate.Add(fileName);
         }
     }
 }
