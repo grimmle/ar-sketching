@@ -183,7 +183,7 @@ public class SpatialAnchorsSetup : MonoBehaviour {
         spawnedAnchorObject.GetComponent<MeshRenderer>().material.color = Color.green;
 
         //somewhat working
-        StopCurrentWatcher();
+        // StopCurrentWatcher();
         // await StopCloudSessionAsync();
 
         return cloudSpatialAnchor.Identifier;
@@ -314,7 +314,7 @@ public class SpatialAnchorsSetup : MonoBehaviour {
         foreach (var file in d.GetFiles("*.xml")) {
             string fileName = Path.GetFileNameWithoutExtension(file.FullName);
             Debug.Log($"sketch: {fileName}");
-            if (anchorIdsToLocate.Count <= 20) anchorIdsToLocate.Add(fileName);
+            if (anchorIdsToLocate.Count <= 20 && !anchorIdsToLocate.Contains(fileName)) anchorIdsToLocate.Add(fileName);
         }
     }
 }
