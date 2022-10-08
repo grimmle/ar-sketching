@@ -72,6 +72,7 @@ namespace Sketching {
 
         public void Update() {
             // if (currentProxyAnchor) {
+            //     // update proxy anchor plane so it always faces the camera
             //     currentProxyAnchor.transform.LookAt(Camera.transform.position);
             //     currentProxyAnchorPlane.SetNormalAndPosition(currentProxyAnchor.transform.forward, currentProxyAnchor.transform.position);
             // }
@@ -90,7 +91,7 @@ namespace Sketching {
                 if (isValidTouch) {
                     if (currentTouch.phase == TouchPhase.Began) {
                         startNewSketchObject = true;
-                    } else if (drawingMode == DrawingMode.Air && (currentTouch.phase == TouchPhase.Stationary || (currentTouch.phase == TouchPhase.Moved && startNewSketchObject == false && currentLineSketchObject.getNumberOfControlPoints() > 0))) {
+                    } else if (drawingMode == DrawingMode.Air && (currentTouch.phase == TouchPhase.Stationary || currentTouch.phase == TouchPhase.Moved)) {
                         if (startNewSketchObject) {
                             //create a new sketch object
                             CreateNewLineSketchObject();
@@ -104,8 +105,6 @@ namespace Sketching {
 
                                 if (currentProxyAnchorPlane.Raycast(ray, out enter)) {
                                     Vector3 hitPoint = ray.GetPoint(enter);
-                                    // Debug.Log($"hit plane at {hitPoint.ToString()}");
-
                                     //point where the user is starting a new sketch
                                     currentHitpoint = new GameObject();
                                     currentHitpoint.transform.position = hitPoint;
@@ -193,9 +192,9 @@ namespace Sketching {
             var renderer = gameObject.GetComponent<Renderer>();
             var newMat = renderer.sharedMaterial;
 
+            // set up brush with current color and diameter option
             newMat.color = ColorMenu.CurrentColor;
             renderer.material.color = ColorMenu.CurrentColor;
-
             currentLineSketchObject = gameObject.GetComponent<LineSketchObject>();
             currentLineSketchObject.minimumControlPointDistance = .01f;
             LineBrush brush = currentLineSketchObject.GetBrush() as LineBrush;
@@ -224,10 +223,8 @@ namespace Sketching {
         }
 
         public void ClearSketchWorld() {
-            // Debug.Log("RootSketchObjectGroup children: " + SketchWorld.transform.Find("RootSketchObjectGroup").transform.childCount);
             foreach (Transform child in SketchWorld.transform.Find("RootSketchObjectGroup").transform) {
                 Destroy(child.gameObject);
-                // new DeleteObjectCommand(child.gameObject.GetComponent<SketchObject>(), SketchWorld).Execute();
             }
             //reset SketchWorld transform
             SketchWorld.transform.position = new Vector3(0, 0, 0);
@@ -240,26 +237,24 @@ namespace Sketching {
             continueOnSameAnchor = false;
         }
 
-        public void SetAnchorProxy() {
+        public void SetProxyAnchor() {
             //set proxy anchor to current BrushMarker position
             if (currentProxyAnchor == null) {
                 currentProxyAnchor = Instantiate(AnchorPlanePrefab, BrushMarker.transform.position, BrushMarker.transform.rotation);
                 currentProxyAnchorPlane = new Plane(-Camera.transform.forward, currentProxyAnchor.transform.position);
-                Debug.Log($"PROXY ANCHOR CREATED AT {currentProxyAnchor.transform.position.ToString()}");
+                // Debug.Log($"PROXY ANCHOR CREATED AT {currentProxyAnchor.transform.position.ToString()}");
             } else {
                 currentProxyAnchor.transform.position = BrushMarker.transform.position;
-                Debug.Log($"PROXY ANCHOR MOVED TO {BrushMarker.transform.position.ToString()}");
+                // Debug.Log($"PROXY ANCHOR MOVED TO {BrushMarker.transform.position.ToString()}");
             }
             currentProxyAnchor.transform.LookAt(Camera.transform.position);
             currentProxyAnchorPlane.SetNormalAndPosition(currentProxyAnchor.transform.forward, currentProxyAnchor.transform.position);
             isSketchingRelatively = true;
-
             ResetBrushmarker();
         }
 
         public void ToggleAirSketchingSpace() {
             if (isSketchingRelatively) {
-                //disable relative sketching
                 isSketchingRelatively = false;
                 toggleSpaceBtn.GetComponentInChildren<TMP_Text>().text = "ABSOLUTE";
                 setProxyAnchorBtn.SetActive(false);
@@ -269,24 +264,23 @@ namespace Sketching {
                 isSketchingRelatively = true;
                 toggleSpaceBtn.GetComponentInChildren<TMP_Text>().text = "RELATIVE";
                 setProxyAnchorBtn.SetActive(true);
-                if (currentProxyAnchor == null) SetAnchorProxy();
+                if (currentProxyAnchor == null) SetProxyAnchor();
                 currentProxyAnchor.SetActive(true);
             }
         }
 
         public void ToggleSketchingMode() {
+            //always sets absolute air drawing as default when switching modes
             if (drawingMode == DrawingMode.Air) {
                 drawingMode = DrawingMode.Screen;
                 toggleModeBtn.GetComponentInChildren<TMP_Text>().text = "screen";
                 BrushMarker.SetActive(false);
-                //set absolute air drawing as default when switching back
                 if (isSketchingRelatively) ToggleAirSketchingSpace();
                 if (currentProxyAnchor != null) currentProxyAnchor.SetActive(false);
             } else {
                 drawingMode = DrawingMode.Air;
                 toggleModeBtn.GetComponentInChildren<TMP_Text>().text = "air";
                 BrushMarker.SetActive(true);
-                //set absolute air drawing as default when switching back
                 if (isSketchingRelatively) ToggleAirSketchingSpace();
                 if (currentProxyAnchor != null) currentProxyAnchor.SetActive(false);
             }

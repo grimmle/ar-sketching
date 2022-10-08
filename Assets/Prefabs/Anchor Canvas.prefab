@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 960529421889734493}
   - component: {fileID: 3811583916774601882}
   m_Layer: 0
-  m_Name: AnchorCanvas
+  m_Name: Anchor Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
