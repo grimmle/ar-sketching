@@ -9,18 +9,14 @@ using TMPro;
 public class ButtonHandler : MonoBehaviour {
     TouchAndHoldToSketch TouchAndHoldToSketchScript;
     SpatialAnchorsSetup SpatialAnchorsSetup;
+    ColorMenu ColorMenuScript;
+    DiameterMenu DiameterMenuScript;
 
     public SketchWorld SketchWorld;
     public DefaultReferences Defaults;
 
     private SketchWorldManager sketchWorldManager;
     private GameObject foundAnchorsOverlay;
-
-    private ColorMenu ColorMenuScript;
-    private DiameterMenu DiameterMenuScript;
-
-    private GameObject diameterMenu;
-    private bool diameterMenuIsOpen;
 
     private string savePath;
 
@@ -48,9 +44,7 @@ public class ButtonHandler : MonoBehaviour {
 
     public async void LookForNearbySketches() {
         // start asa cloud session and start looking for nearby anchors
-        Debug.Log("LookForNearbySketches");
         await SpatialAnchorsSetup.SetupCloudSessionAsync(true);
-        // SpatialAnchorsSetup.ConfigureSensors();
     }
 
     public void LoadSketchWithIndex() {
@@ -70,30 +64,25 @@ public class ButtonHandler : MonoBehaviour {
     public void Undo() {
         TouchAndHoldToSketchScript.DeleteLastLineSketchObject();
     }
-
     public void Redo() {
         TouchAndHoldToSketchScript.RestoreLastDeletedSketchObject();
     }
-
     public void Clear() {
         TouchAndHoldToSketchScript.ClearSketchWorld();
         SpatialAnchorsSetup.CleanupSpawnedObjects();
     }
 
-    public void SetAnchorProxyForRelativeSketching() {
-        TouchAndHoldToSketchScript.SetAnchorProxy();
-    }
-
     public void ToggleAirSketchingSpace() {
         TouchAndHoldToSketchScript.ToggleAirSketchingSpace();
     }
-
     public void ToggleSketchingMode() {
         TouchAndHoldToSketchScript.ToggleSketchingMode();
     }
+    public void SetProxyAnchorForRelativeSketching() {
+        TouchAndHoldToSketchScript.SetProxyAnchor();
+    }
 
     public void CloseFoundSketchesList() {
-        // SpatialAnchorsSetup.StopCurrentWatcher();
         CanvasGroup group = foundAnchorsOverlay.GetComponent<CanvasGroup>();
         group.alpha = 0;
         group.blocksRaycasts = false;
@@ -107,7 +96,6 @@ public class ButtonHandler : MonoBehaviour {
             ColorMenuScript.Open();
         }
     }
-
     public void ChooseColor() {
         Color color = this.transform.Find("Mask").transform.Find("Color").GetComponent<Image>().color;
         ColorMenuScript.SetColor(color);
@@ -120,7 +108,6 @@ public class ButtonHandler : MonoBehaviour {
             DiameterMenuScript.Open();
         }
     }
-
     public void ChooseDiameter() {
         string diameter = this.transform.Find("Diameter").GetComponent<TMP_Text>().text;
         DiameterMenuScript.SetDiameter(diameter);
