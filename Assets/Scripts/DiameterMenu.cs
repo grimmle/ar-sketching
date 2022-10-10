@@ -26,9 +26,9 @@ public class DiameterMenu : MonoBehaviour {
     void Awake() {
         diameters.Add("XS", 0.005f);
         diameters.Add("S", 0.01f);
-        diameters.Add("M", 0.02f);
-        diameters.Add("L", 0.03f);
-        diameters.Add("XL", 0.04f);
+        diameters.Add("M", 0.025f);
+        diameters.Add("L", 0.05f);
+        diameters.Add("XL", 0.1f);
 
         //set up diameter picker
         options = GameObject.Find("Diameter Options");
@@ -38,7 +38,7 @@ public class DiameterMenu : MonoBehaviour {
         currentDiameterText.text = "M";
         CurrentDiameter = diameters["M"];
 
-        foreach (var title in diameters.Keys) {
+        foreach (string title in diameters.Keys) {
             var btn = Instantiate(DiameterButton);
             btn.transform.Find("Diameter").GetComponent<TMP_Text>().text = title;
             btn.transform.SetParent(options.transform);
