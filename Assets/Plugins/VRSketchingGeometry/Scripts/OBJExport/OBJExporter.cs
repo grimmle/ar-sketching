@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Text;
 using System.Collections.Generic;
+using System;
 
 /*=============================================================================
  |	    Project:  Unity3D Scene OBJ Exporter
@@ -53,13 +54,14 @@ namespace VRSketchingGeometry.Export
         /// <returns>file path</returns>
         public static string GetDefaultExportPath()
         {
-            string defaultDirectoryName = "ExportedSketches";
-            string defaultFileName = "SketchExport_";
+            string defaultDirectoryName = "Exports";
+            string date = DateTime.Now.ToString("s").Replace(":", "-");
+            string defaultFileName = $"SketchExport_{date}";
             string fileExtension = ".obj";
             int fileNr = 0;
             string fullPath;
 
-            string fullDirectoryPath = System.IO.Path.Combine(Application.dataPath, defaultDirectoryName);
+            string fullDirectoryPath = System.IO.Path.Combine(Application.persistentDataPath, defaultDirectoryName);
 
             if (!System.IO.Directory.Exists(fullDirectoryPath))
             {
@@ -68,7 +70,7 @@ namespace VRSketchingGeometry.Export
 
             do
             {
-                fullPath = System.IO.Path.Combine(Application.dataPath, defaultDirectoryName, defaultFileName + fileNr.ToString());
+                fullPath = System.IO.Path.Combine(Application.persistentDataPath, defaultDirectoryName, defaultFileName + fileNr.ToString());
                 fullPath = System.IO.Path.ChangeExtension(fullPath, fileExtension);
                 fileNr++;
             }
@@ -120,7 +122,7 @@ namespace VRSketchingGeometry.Export
             System.IO.File.WriteAllText(exportPath, sb.ToString());
             if (generateMaterials)
             {
-                System.IO.File.WriteAllText(exportFileInfo.Directory.FullName + "\\" + baseFileName + ".mtl", sbMaterials.ToString());
+                System.IO.File.WriteAllText(exportFileInfo.Directory.FullName + "/" + baseFileName + ".mtl", sbMaterials.ToString());
             }
 
             System.Globalization.CultureInfo.CurrentCulture = originalCulture;

@@ -5,6 +5,7 @@ using VRSketchingGeometry.SketchObjectManagement;
 using Microsoft.Azure.SpatialAnchors;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class ButtonHandler : MonoBehaviour {
     TouchAndHoldToSketch TouchAndHoldToSketchScript;
@@ -30,16 +31,16 @@ public class ButtonHandler : MonoBehaviour {
         foundAnchorsOverlay = GameObject.Find("Located Sketches List");
     }
 
-    public async void Save() {
-        await SpatialAnchorsSetup.SetupCloudSessionAsync();
-        var anchorId = await SpatialAnchorsSetup.SaveCurrentObjectAnchorToCloudAsync();
+    public void Save() {
+        // await SpatialAnchorsSetup.SetupCloudSessionAsync();
+        // var anchorId = await SpatialAnchorsSetup.SaveCurrentObjectAnchorToCloudAsync();
 
-        //serialize the SketchWorld to a XML file
-        savePath = System.IO.Path.Combine(Application.persistentDataPath, anchorId + ".xml");
-        SketchWorld.SaveSketchWorld(savePath);
+        // //serialize the SketchWorld to a XML file
+        // savePath = System.IO.Path.Combine(Application.persistentDataPath, anchorId + ".xml");
+        // SketchWorld.SaveSketchWorld(savePath);
 
         //export the SketchWorld as an OBJ file
-        // SketchWorld.ExportSketchWorldToDefaultPath();
+        SketchWorld.ExportSketchWorldToDefaultPath();
     }
 
     public async void LookForNearbySketches() {
