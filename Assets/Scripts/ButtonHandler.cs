@@ -48,6 +48,10 @@ public class ButtonHandler : MonoBehaviour {
         TouchAndHoldToSketchScript.ToggleSketchingMode();
     }
 
+    public void SetProxyAnchorForRelativeSketching() {
+        TouchAndHoldToSketchScript.SetProxyAnchor();
+    }
+
     public void ToggleColorMenu() {
         if (ColorMenu.IsOpen) {
             ColorMenuScript.Close();
