@@ -4,6 +4,7 @@ using VRSketchingGeometry;
 using VRSketchingGeometry.SketchObjectManagement;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class ButtonHandler : MonoBehaviour {
     TouchAndHoldToSketch TouchAndHoldToSketchScript;
@@ -25,9 +26,9 @@ public class ButtonHandler : MonoBehaviour {
         sketchWorldManager = GameObject.Find("Main").GetComponent<SketchWorldManager>();
     }
 
-    public async void Save() {
+    public void Save() {
         //export the SketchWorld as an OBJ file
-        // SketchWorld.ExportSketchWorldToDefaultPath();
+        SketchWorld.ExportSketchWorldToDefaultPath();
     }
 
     public void Undo() {
