@@ -1028,7 +1028,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &462394164
 MonoBehaviour:
@@ -1937,7 +1937,7 @@ RectTransform:
   - {fileID: 1418487098}
   - {fileID: 838193321}
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -2386,75 +2386,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1168353535}
   m_CullTransparentMesh: 1
---- !u!1 &1207951677
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1207951678}
-  - component: {fileID: 1207951679}
-  - component: {fileID: 1207951680}
-  m_Layer: 0
-  m_Name: AzureSpatialAnchors
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1207951678
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1207951677}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1423.8295, y: 733.2672, z: 76.798706}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1207951679
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1207951677}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2ef4e40d29b7a564f86f3d2f0abca194, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  authenticationMode: 0
-  spatialAnchorsAccountId: 9e7b84bc-4172-42d0-99aa-6a016079b271
-  spatialAnchorsAccountKey: oddo3Di4YwoVBNaU3JLoOOv9LohFGkN+sRA86y4avXU=
-  spatialAnchorsAccountDomain: northeurope.mixedreality.azure.com
-  clientId: 
-  tenantId: 
-  logLevel: 5
---- !u!114 &1207951680
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1207951677}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8fda6cfed90b434ea20451ec03a5598, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  anchoredObjectPrefab: {fileID: 580457694890696453, guid: ef181b7b6127a457a8e22edbfe072361,
-    type: 3}
-  anchorCreationProgress: {fileID: 694779840}
-  foundAnchorButtonPrefab: {fileID: 6111119865871360032, guid: 0604e1ccb3c3e4957b2e3345b425722f,
-    type: 3}
 --- !u!1 &1298833516
 GameObject:
   m_ObjectHideFlags: 0
@@ -3733,7 +3664,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1682294189
 GameObject:
