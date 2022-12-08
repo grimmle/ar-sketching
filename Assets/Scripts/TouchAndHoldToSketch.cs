@@ -76,10 +76,31 @@ namespace Sketching {
             //     currentProxyAnchor.transform.LookAt(Camera.transform.position);
             //     currentProxyAnchorPlane.SetNormalAndPosition(currentProxyAnchor.transform.forward, currentProxyAnchor.transform.position);
             // }
-            if (currentProxyAnchorBrush && currentProxyAnchorNull) {
-                //get camera position relative to hitpoint origin
-                var relativeCameraPos = getRelativePosition(currentProxyAnchorNull.transform, Camera.transform.position);
-                currentProxyAnchorBrush.transform.localPosition = relativeCameraPos;
+            if (currentProxyAnchor) {
+                if (currentProxyAnchorBrush) {
+                    //update proxyAnchorBrush relative position
+                    //get camera position relative to hitpoint origin
+                    var relativeCameraPos = getRelativePosition(currentProxyAnchorNull.transform, Camera.transform.position);
+                    currentProxyAnchorBrush.transform.localPosition = relativeCameraPos;
+                }
+
+                //scale canvas according to distance
+                Vector3 defaultScale = new Vector3(0.05f, 1, 0.05f);
+                float minDistance = 1f;
+                var d = Vector3.Distance(Camera.transform.position, currentProxyAnchor.transform.position);
+                if (d > minDistance) {
+                    Vector3 scaleVector = new Vector3(1 + d - minDistance, 1, 1 + d - minDistance);
+                    Vector3 newScale = Vector3.Scale(defaultScale, scaleVector);
+                    currentProxyAnchor.transform.GetChild(0).localScale = newScale;
+                    if (currentProxyAnchorBrush) {
+                        currentProxyAnchorBrush.transform.localScale = Vector3.Scale(new Vector3(0.005f, 0.005f, 0.005f), scaleVector);
+                    }
+                } else {
+                    currentProxyAnchor.transform.GetChild(0).localScale = defaultScale;
+                    if (currentProxyAnchorBrush) {
+                        currentProxyAnchorBrush.transform.localScale = new Vector3(0.005f, 0.005f, 0.005f);
+                    }
+                }
             }
 
             if (Input.touchCount > 0) {

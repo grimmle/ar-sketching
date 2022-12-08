@@ -814,7 +814,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 788587e994f1943f3856c1c332db429b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_AnchorPrefab: {fileID: 0}
 --- !u!1 &438103728
 GameObject:
   m_ObjectHideFlags: 0
@@ -2649,7 +2648,7 @@ MonoBehaviour:
     type: 3}
   defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
   BrushMarker: {fileID: 1662533778}
-  AnchorPlanePrefab: {fileID: 616976525079372118, guid: a72abfec67a994926b3b92b3f5573f39,
+  AnchorPlanePrefab: {fileID: 229978050857202651, guid: 8c11994ca069040b9a23dd99396c601e,
     type: 3}
 --- !u!4 &1409983263
 Transform:
