@@ -53,17 +53,14 @@ namespace Sketching {
         private bool isValidTouch = false;
         private bool startNewSketchObject = false;
 
-        //needed for new input system
-        private PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
-
         private DrawingMode drawingMode = DrawingMode.Air;
 
         public void Start() {
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             BrushMarker.transform.SetParent(Camera.transform);
             BrushMarker.transform.localPosition = Vector3.forward * 0.3f;
-            invoker = new CommandInvoker();
 
+            invoker = GameObject.Find("Main").GetComponent<GlobalCommandInvoker>().invoker;
             toggleSpaceBtn = GameObject.Find("Toggle Sketching Space");
             toggleModeBtn = GameObject.Find("Toggle Sketching Mode");
             setProxyAnchorBtn = GameObject.Find("Set Proxy Anchor");
@@ -103,10 +100,10 @@ namespace Sketching {
                 }
             }
 
-            if (Input.touchCount > 0) {
+            if (Input.touchCount > 0 && !Eraser.SelectionActive) {
                 Touch currentTouch = Input.GetTouch(0);
                 if (currentTouch.phase == TouchPhase.Began) {
-                    isValidTouch = IsValidTouch(currentTouch);
+                    isValidTouch = Helpers.IsValidTouch(currentTouch);
                 }
 
                 if (isValidTouch) {
@@ -187,18 +184,6 @@ namespace Sketching {
             }
         }
 
-        private bool IsValidTouch(Touch currentTouch) {
-            //ignore touch if it is on UI or the AR session is not tracking the environment
-            var hits = new List<RaycastResult>();
-            pointerEventData.position = currentTouch.position;
-            EventSystem.current.RaycastAll(pointerEventData, hits);
-            if (ARSession.state != ARSessionState.SessionTracking || EventSystem.current.IsPointerOverGameObject(currentTouch.fingerId) || hits.Count > 0) {
-                // Debug.Log("Invalid Touch!");
-                return false;
-            }
-            return true;
-        }
-
         private void CreateNewLineSketchObject() {
             if (!worldAnchor) {
                 //create world anchor
@@ -233,14 +218,6 @@ namespace Sketching {
                     new RefineMeshCommand(currentLineSketchObject).Execute();
                 }
             }
-        }
-
-        public void DeleteLastLineSketchObject() {
-            invoker.Undo();
-        }
-
-        public void RestoreLastDeletedSketchObject() {
-            invoker.Redo();
         }
 
         public void ClearSketchWorld() {

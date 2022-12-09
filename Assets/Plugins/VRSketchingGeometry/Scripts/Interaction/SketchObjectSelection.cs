@@ -81,8 +81,8 @@ namespace VRSketchingGeometry.SketchObjectManagement
                 selected.transform.SetParent(this.transform);
             }
 
-            SetUpBoundingBoxVisualization(GetBoundsOfSelection(this));
-            boundsVisualizationObject.SetActive(true);
+            // SetUpBoundingBoxVisualization(GetBoundsOfSelection(this));
+            // boundsVisualizationObject.SetActive(true);
             this.gameObject.BroadcastMessage(nameof(IHighlightable.highlight));
         }
 

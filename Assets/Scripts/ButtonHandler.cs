@@ -1,27 +1,31 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 using Sketching;
 using VRSketchingGeometry;
 using VRSketchingGeometry.SketchObjectManagement;
-using UnityEngine.UI;
-using TMPro;
-using System;
+using VRSketchingGeometry.Commands;
 
 public class ButtonHandler : MonoBehaviour {
     TouchAndHoldToSketch TouchAndHoldToSketchScript;
     ColorMenu ColorMenuScript;
     DiameterMenu DiameterMenuScript;
+    Eraser EraserScript;
 
     public SketchWorld SketchWorld;
     public DefaultReferences Defaults;
 
     private SketchWorldManager sketchWorldManager;
+    private CommandInvoker invoker;
 
     private string savePath;
 
-    void Awake() {
+    void Start() {
         TouchAndHoldToSketchScript = GameObject.Find("Main").GetComponent<TouchAndHoldToSketch>();
         ColorMenuScript = GameObject.Find("Main").GetComponent<ColorMenu>();
         DiameterMenuScript = GameObject.Find("Main").GetComponent<DiameterMenu>();
+        EraserScript = GameObject.Find("Main").GetComponent<Eraser>();
+        invoker = GameObject.Find("Main").GetComponent<GlobalCommandInvoker>().invoker;
 
         sketchWorldManager = GameObject.Find("Main").GetComponent<SketchWorldManager>();
     }
@@ -32,10 +36,10 @@ public class ButtonHandler : MonoBehaviour {
     }
 
     public void Undo() {
-        TouchAndHoldToSketchScript.DeleteLastLineSketchObject();
+        invoker.Undo();
     }
     public void Redo() {
-        TouchAndHoldToSketchScript.RestoreLastDeletedSketchObject();
+        invoker.Redo();
     }
     public void Clear() {
         TouchAndHoldToSketchScript.ClearSketchWorld();
@@ -50,6 +54,18 @@ public class ButtonHandler : MonoBehaviour {
 
     public void SetProxyAnchorForRelativeSketching() {
         TouchAndHoldToSketchScript.SetProxyAnchor();
+    }
+
+    public void ToggleEraser() {
+        if (Eraser.SelectionActive) {
+            EraserScript.DisableSelection();
+        } else {
+            EraserScript.EnableSelection();
+        }
+    }
+
+    public void DeleteSelectedObjects() {
+        EraserScript.DeleteSelectedObjects();
     }
 
     public void ToggleColorMenu() {
