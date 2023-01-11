@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7839531145512648777}
-  m_Layer: 2
+  m_Layer: 6
   m_Name: Anchor Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 6238839319233557249}
   - component: {fileID: 4113008350230624217}
   - component: {fileID: 8766387645945330897}
-  m_Layer: 2
+  m_Layer: 6
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0d343638986ca4440b180cfd9d9b9c8f, type: 2}
+  - {fileID: 2100000, guid: e8db40bce75654d9f8d19cea8adf8818, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

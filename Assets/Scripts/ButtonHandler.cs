@@ -46,7 +46,7 @@ public class ButtonHandler : MonoBehaviour {
     }
 
     public void ToggleAirSketchingSpace() {
-        TouchAndHoldToSketchScript.ToggleAirSketchingSpace();
+        TouchAndHoldToSketchScript.ToggleSketchingSpace();
     }
     public void ToggleSketchingMode() {
         TouchAndHoldToSketchScript.ToggleSketchingMode();
