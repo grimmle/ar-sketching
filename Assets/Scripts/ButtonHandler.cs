@@ -57,15 +57,11 @@ public class ButtonHandler : MonoBehaviour {
     }
 
     public void ToggleEraser() {
-        if (Eraser.SelectionActive) {
-            EraserScript.DisableSelection();
+        if (Eraser.IsEnabled) {
+            EraserScript.Disable();
         } else {
-            EraserScript.EnableSelection();
+            EraserScript.Enable();
         }
-    }
-
-    public void DeleteSelectedObjects() {
-        EraserScript.DeleteSelectedObjects();
     }
 
     public void ToggleColorMenu() {
