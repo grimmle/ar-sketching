@@ -7,7 +7,7 @@ using VRSketchingGeometry.SketchObjectManagement;
 using VRSketchingGeometry.Commands;
 
 public class ButtonHandler : MonoBehaviour {
-    TouchAndHoldToSketch TouchAndHoldToSketchScript;
+    TouchToSketch TouchAndHoldToSketchScript;
     ColorMenu ColorMenuScript;
     DiameterMenu DiameterMenuScript;
     Eraser EraserScript;
@@ -21,7 +21,7 @@ public class ButtonHandler : MonoBehaviour {
     private string savePath;
 
     void Start() {
-        TouchAndHoldToSketchScript = GameObject.Find("Main").GetComponent<TouchAndHoldToSketch>();
+        TouchAndHoldToSketchScript = GameObject.Find("Main").GetComponent<TouchToSketch>();
         ColorMenuScript = GameObject.Find("Main").GetComponent<ColorMenu>();
         DiameterMenuScript = GameObject.Find("Main").GetComponent<DiameterMenu>();
         EraserScript = GameObject.Find("Main").GetComponent<Eraser>();
@@ -45,14 +45,16 @@ public class ButtonHandler : MonoBehaviour {
         TouchAndHoldToSketchScript.ClearSketchWorld();
     }
 
-    public void ToggleAirSketchingSpace() {
-        TouchAndHoldToSketchScript.ToggleSketchingSpace();
+    public void ToggleMarker() {
+        TouchAndHoldToSketchScript.ToggleMarker();
     }
-    public void ToggleSketchingMode() {
-        TouchAndHoldToSketchScript.ToggleSketchingMode();
+    public void ToggleCanvas() {
+        TouchAndHoldToSketchScript.ToggleCanvas();
     }
-
-    public void SetProxyAnchorForRelativeSketching() {
+    public void ToggleConnect() {
+        TouchAndHoldToSketchScript.ToggleConnect();
+    }
+    public void SetCanvas() {
         TouchAndHoldToSketchScript.SetCanvas();
     }
 
