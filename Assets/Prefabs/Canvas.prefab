@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7839531145512648777}
   m_Layer: 6
-  m_Name: Anchor Canvas
+  m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

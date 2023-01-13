@@ -19,16 +19,15 @@ namespace Sketching {
         public Camera Camera;
         public SketchWorld SketchWorld;
         public GameObject SketchObjectPrefab;
-        public DefaultReferences defaults;
+        public DefaultReferences Defaults;
 
-        //indicator for where new objects are drawn from
+        //indicator for where new lines are drawn from
         public GameObject Brush;
 
-        [Tooltip("Visualization of the anchor plane.")]
-        public GameObject AnchorPlanePrefab = null;
-        //anchor in 3D space used for relative mid-air sketching
-        private GameObject currentProxyAnchor;
-        private Plane currentProxyAnchorPlane;
+        [Tooltip("Visualization of the canvas.")]
+        public GameObject CanvasPrefab = null;
+        private GameObject currentCanvas;
+        private Plane currentCanvasPlane;
 
         //hit point
         private GameObject currentHitpoint;
@@ -42,9 +41,9 @@ namespace Sketching {
         private bool isSketchingRelatively = false;
 
         //BUTTONS
-        private GameObject toggleSpaceBtn;
-        private GameObject setProxyAnchorBtn;
-        private GameObject toggleModeBtn;
+        private GameObject toggleSpaceButton;
+        private GameObject setCanvasButton;
+        private GameObject toggleModeButton;
 
         private LineRenderer lineRenderer;
         private GameObject distanceDisplay;
@@ -55,32 +54,28 @@ namespace Sketching {
 
         private bool isValidTouch = false;
         private bool startNewSketchObject = false;
+        private float brushDistance = 0.2f;
 
         private DrawingMode drawingMode = DrawingMode.Display;
 
         public void Start() {
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             Brush.transform.SetParent(Camera.transform);
-            Brush.transform.localPosition = Vector3.forward * 0.3f;
+            Brush.transform.localPosition = Vector3.forward * brushDistance;
             Brush.SetActive(false);
 
             invoker = GameObject.Find("Main").GetComponent<GlobalCommandInvoker>().invoker;
             lineRenderer = GameObject.Find("Line").GetComponent<LineRenderer>();
             distanceDisplay = GameObject.Find("Distance Display");
             lineRenderer.gameObject.SetActive(false);
-            toggleSpaceBtn = GameObject.Find("Toggle Sketching Space");
-            toggleModeBtn = GameObject.Find("Toggle Sketching Mode");
-            setProxyAnchorBtn = GameObject.Find("Set Proxy Anchor");
-            setProxyAnchorBtn.SetActive(false);
+            toggleSpaceButton = GameObject.Find("Toggle Sketching Space");
+            toggleModeButton = GameObject.Find("Toggle Sketching Mode");
+            setCanvasButton = GameObject.Find("Place Canvas");
+            setCanvasButton.SetActive(false);
         }
 
         public void Update() {
-            // if (currentProxyAnchor) {
-            //     // update proxy anchor plane so it always faces the camera
-            //     currentProxyAnchor.transform.LookAt(Camera.transform.position);
-            //     currentProxyAnchorPlane.SetNormalAndPosition(currentProxyAnchor.transform.forward, currentProxyAnchor.transform.position);
-            // }
-            if (currentProxyAnchor) {
+            if (currentCanvas) {
                 if (currentProxyAnchorBrush) {
                     //update proxyAnchorBrush relative position
                     //get camera position relative to hitpoint origin
@@ -91,16 +86,16 @@ namespace Sketching {
                 //scale canvas according to distance
                 Vector3 defaultScale = new Vector3(0.05f, 1, 0.05f);
                 float minDistance = 1f;
-                var d = Vector3.Distance(Camera.transform.position, currentProxyAnchor.transform.position);
+                var d = Vector3.Distance(Camera.transform.position, currentCanvas.transform.position);
                 if (d > minDistance) {
                     Vector3 scaleVector = new Vector3(1 + d - minDistance, 1, 1 + d - minDistance);
                     Vector3 newScale = Vector3.Scale(defaultScale, scaleVector);
-                    currentProxyAnchor.transform.GetChild(0).localScale = newScale;
+                    currentCanvas.transform.GetChild(0).localScale = newScale;
                     if (currentProxyAnchorBrush) {
                         currentProxyAnchorBrush.transform.localScale = Vector3.Scale(new Vector3(0.005f, 0.005f, 0.005f), scaleVector);
                     }
                 } else {
-                    currentProxyAnchor.transform.GetChild(0).localScale = defaultScale;
+                    currentCanvas.transform.GetChild(0).localScale = defaultScale;
                     if (currentProxyAnchorBrush) {
                         currentProxyAnchorBrush.transform.localScale = new Vector3(0.005f, 0.005f, 0.005f);
                     }
@@ -123,7 +118,7 @@ namespace Sketching {
                             startNewSketchObject = false;
 
                             //if sketching relatively, raycast from viewport center to anchorPlane, set anchorNull and start drawing from that hitpoint
-                            if (isSketchingRelatively && currentProxyAnchor != null && !continueOnSameAnchor) {
+                            if (isSketchingRelatively && currentCanvas != null && !continueOnSameAnchor) {
                                 Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
                                 RaycastHit hit;
                                 Camera.transform.parent = null;
@@ -164,18 +159,18 @@ namespace Sketching {
                             startNewSketchObject = false;
                         } else if (currentLineSketchObject) {
                             //if sketching relatively, raycast from screen touchPoint to anchorPlane
-                            if (isSketchingRelatively && currentProxyAnchor != null) {
+                            if (isSketchingRelatively && currentCanvas != null) {
                                 Ray ray = Camera.main.ScreenPointToRay(new Vector3(currentTouch.position.x, currentTouch.position.y, 0f));
                                 float enter = 0.0f;
 
                                 // use infinite plane to allow for bigger sketches
-                                if (currentProxyAnchorPlane.Raycast(ray, out enter)) {
+                                if (currentCanvasPlane.Raycast(ray, out enter)) {
                                     Vector3 hitPoint = ray.GetPoint(enter);
                                     new AddControlPointContinuousCommand(currentLineSketchObject, hitPoint).Execute();
                                 }
                             } else {
                                 //draw at current absolute touch position
-                                var touchPos = Camera.main.ScreenToWorldPoint(new Vector3(currentTouch.position.x, currentTouch.position.y, 0.3f));
+                                var touchPos = Camera.main.ScreenToWorldPoint(new Vector3(currentTouch.position.x, currentTouch.position.y, brushDistance));
                                 new AddControlPointContinuousCommand(currentLineSketchObject, touchPos).Execute();
                             }
                         }
@@ -198,11 +193,11 @@ namespace Sketching {
 
         void LateUpdate() {
             // update distance display
-            if (currentProxyAnchor && currentProxyAnchorBrush) {
-                Vector3 center = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0.3f));
+            if (currentCanvas && currentProxyAnchorBrush) {
+                Vector3 center = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, brushDistance));
                 Vector3 realCenter = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0f));
                 // Vector3 bottomCenter = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0f, 0f));
-                // Vector3 bottomCenterLineStart = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0f, 0.3f));
+                // Vector3 bottomCenterLineStart = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0f, brushDistance));
                 lineRenderer.SetPosition(0, center);
                 lineRenderer.SetPosition(1, currentProxyAnchorBrush.transform.position);
                 lineRenderer.startWidth = 0.0003f;
@@ -256,7 +251,7 @@ namespace Sketching {
             SketchWorld.transform.rotation = new Quaternion();
         }
 
-        private void ResetBrushmarker() {
+        private void ResetBrush() {
             Destroy(currentProxyAnchorBrush);
             if (drawingMode == DrawingMode.Air) Brush.SetActive(true);
             continueOnSameAnchor = false;
@@ -267,37 +262,37 @@ namespace Sketching {
             distanceDisplay.GetComponentInChildren<TMP_Text>().text = "";
         }
 
-        public void SetProxyAnchor() {
+        public void SetCanvas() {
             //set proxy anchor to current BrushMarker position
-            if (currentProxyAnchor == null) {
-                currentProxyAnchor = Instantiate(AnchorPlanePrefab, Brush.transform.position, Brush.transform.rotation);
-                currentProxyAnchorPlane = new Plane(-Camera.transform.forward, currentProxyAnchor.transform.position);
+            if (currentCanvas == null) {
+                currentCanvas = Instantiate(CanvasPrefab, Brush.transform.position, Brush.transform.rotation);
+                currentCanvasPlane = new Plane(-Camera.transform.forward, currentCanvas.transform.position);
                 // Debug.Log($"PROXY ANCHOR CREATED AT {currentProxyAnchor.transform.position.ToString()}");
             } else {
-                currentProxyAnchor.transform.position = Brush.transform.position;
+                currentCanvas.transform.position = Brush.transform.position;
                 // Debug.Log($"PROXY ANCHOR MOVED TO {BrushMarker.transform.position.ToString()}");
             }
-            currentProxyAnchor.transform.LookAt(Camera.transform.position);
-            currentProxyAnchorPlane.SetNormalAndPosition(currentProxyAnchor.transform.forward, currentProxyAnchor.transform.position);
+            currentCanvas.transform.LookAt(Camera.transform.position);
+            currentCanvasPlane.SetNormalAndPosition(currentCanvas.transform.forward, currentCanvas.transform.position);
             isSketchingRelatively = true;
-            ResetBrushmarker();
+            ResetBrush();
             distanceDisplay.GetComponentInChildren<TMP_Text>().text = "";
         }
 
         public void ToggleSketchingSpace() {
             if (isSketchingRelatively) {
                 isSketchingRelatively = false;
-                toggleSpaceBtn.GetComponentInChildren<TMP_Text>().text = "ABSOLUTE";
-                setProxyAnchorBtn.SetActive(false);
-                if (currentProxyAnchor != null) currentProxyAnchor.SetActive(false);
-                ResetBrushmarker();
+                toggleSpaceButton.GetComponentInChildren<TMP_Text>().text = "ABSOLUTE";
+                setCanvasButton.SetActive(false);
+                if (currentCanvas != null) currentCanvas.SetActive(false);
+                ResetBrush();
                 HideDistanceDisplay();
             } else {
                 isSketchingRelatively = true;
-                toggleSpaceBtn.GetComponentInChildren<TMP_Text>().text = "RELATIVE";
-                setProxyAnchorBtn.SetActive(true);
-                if (currentProxyAnchor == null) SetProxyAnchor();
-                currentProxyAnchor.SetActive(true);
+                toggleSpaceButton.GetComponentInChildren<TMP_Text>().text = "RELATIVE";
+                setCanvasButton.SetActive(true);
+                if (currentCanvas == null) SetCanvas();
+                currentCanvas.SetActive(true);
                 //activate linerenderer to show distance to brushmaker
                 lineRenderer.gameObject.SetActive(true);
             }
@@ -307,17 +302,17 @@ namespace Sketching {
             //always sets 'absolute' as default when switching modes
             if (drawingMode == DrawingMode.Air) {
                 drawingMode = DrawingMode.Display;
-                toggleModeBtn.GetComponentInChildren<TMP_Text>().text = "display";
+                toggleModeButton.GetComponentInChildren<TMP_Text>().text = "display";
                 Brush.SetActive(false);
                 if (isSketchingRelatively) ToggleSketchingSpace();
-                if (currentProxyAnchor != null) currentProxyAnchor.SetActive(false);
+                if (currentCanvas != null) currentCanvas.SetActive(false);
                 HideDistanceDisplay();
             } else {
                 drawingMode = DrawingMode.Air;
-                toggleModeBtn.GetComponentInChildren<TMP_Text>().text = "air";
+                toggleModeButton.GetComponentInChildren<TMP_Text>().text = "air";
                 Brush.SetActive(true);
                 if (isSketchingRelatively) ToggleSketchingSpace();
-                if (currentProxyAnchor != null) currentProxyAnchor.SetActive(false);
+                if (currentCanvas != null) currentCanvas.SetActive(false);
             }
         }
 

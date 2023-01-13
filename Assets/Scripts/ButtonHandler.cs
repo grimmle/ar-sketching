@@ -53,7 +53,7 @@ public class ButtonHandler : MonoBehaviour {
     }
 
     public void SetProxyAnchorForRelativeSketching() {
-        TouchAndHoldToSketchScript.SetProxyAnchor();
+        TouchAndHoldToSketchScript.SetCanvas();
     }
 
     public void ToggleEraser() {
