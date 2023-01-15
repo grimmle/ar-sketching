@@ -97,14 +97,16 @@ namespace Sketching {
                     //only continue if the hit object is not a canvas and not the brush
                     if (hit.collider.gameObject.layer != 6 && hit.collider.gameObject.layer != 2) {
                         hitObject = true;
-                        Brush.transform.localPosition = hit.point;
-                        //TDOD: brush not visible????
+                        Brush.transform.parent = null;
+                        Brush.transform.position = hit.point;
                         Vector3 center = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0f));
                         distanceDisplay.GetComponentInChildren<TMP_Text>().text = $"{(hit.point - center).magnitude.ToString("F2")}m";
                     }
                 }
                 if (!hitObject) {
                     HideDistanceDisplay();
+                    Brush.transform.position = new Vector3(0, 0, 0);
+                    Brush.transform.SetParent(Camera.transform);
                     Brush.transform.localPosition = new Vector3(0, 0, defaultBrushDistance);
                 }
             }
