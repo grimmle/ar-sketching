@@ -88,30 +88,25 @@ namespace Sketching {
         }
 
         public void Update() {
-            //DISTANCE DISPLAY
-            // if (connectActive && markerActive && !currentLineSketchObject) {
-            //     Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-            //     RaycastHit hit;
-            //     Camera.transform.parent = null;
-            //     if (Physics.Raycast(ray, out hit)) {
-            //         //only continue if the hit object is not a canvas
-            //         // if (hit.collider.gameObject.layer != 6) {
-            //         Vector3 center = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, brushDistance));
-            //         Vector3 realCenter = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0f));
-            //         // Vector3 bottomCenter = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0f, 0f));
-            //         // Vector3 bottomCenterLineStart = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0f, brushDistance));
-            //         Brush.transform.localPosition = hit.point;
-            //         lineRenderer.gameObject.SetActive(true);
-            //         lineRenderer.SetPosition(0, center);
-            //         lineRenderer.SetPosition(1, hit.point);
-            //         lineRenderer.startWidth = 0.0003f;
-            //         lineRenderer.endWidth = 0.0003f;
-            //         distanceDisplay.GetComponentInChildren<TMP_Text>().text = $"{(hit.point - realCenter).magnitude.ToString("F2")}m";
-            //         // }
-            //     } else {
-            //         HideDistanceDisplay();
-            //     }
-            // }
+            //show distance to existing lines when using marker & connect tools
+            if (markerActive && connectActive && !isValidTouch) {
+                Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+                RaycastHit hit;
+                bool hitObject = false;
+                if (Physics.Raycast(ray, out hit)) {
+                    //only continue if the hit object is not a canvas and not the brush
+                    if (hit.collider.gameObject.layer != 6 && hit.collider.gameObject.layer != 2) {
+                        hitObject = true;
+                        Brush.transform.localPosition = hit.point;
+                        Vector3 center = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0f));
+                        distanceDisplay.GetComponentInChildren<TMP_Text>().text = $"{(hit.point - center).magnitude.ToString("F2")}m";
+                    }
+                }
+                if (!hitObject) {
+                    HideDistanceDisplay();
+                    Brush.transform.localPosition = new Vector3(0, 0, defaultBrushDistance);
+                }
+            }
 
             if (Input.touchCount > 0 && !Eraser.IsEnabled) {
                 Touch currentTouch = Input.GetTouch(0);
@@ -256,37 +251,6 @@ namespace Sketching {
             if (markerActive) Brush.GetComponent<Renderer>().enabled = true;
             Destroy(relativeBrush);
         }
-
-        /*
-        void LateUpdate() {
-            // update distance display to show distance to any existing line or canvas
-            // if (currentCanvas && currentProxyAnchorBrush) {
-            // if (!(connectActive && markerActive) || !startNewSketchObject) return;
-            // only update if using marker with connect mode and if not actively sketching
-            if (!(connectActive && markerActive) || !startNewSketchObject) HideDistanceDisplay();
-
-            Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-            RaycastHit hit;
-            Camera.transform.parent = null;
-            if (Physics.Raycast(ray, out hit)) {
-                //only continue if the hit object is not a canvas
-                // if (hit.collider.gameObject.layer != 6) {
-                Vector3 center = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, brushDistance));
-                Vector3 realCenter = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0f));
-                // Vector3 bottomCenter = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0f, 0f));
-                // Vector3 bottomCenterLineStart = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0f, brushDistance));
-                Brush.transform.localPosition = hit.point;
-                lineRenderer.gameObject.SetActive(true);
-                lineRenderer.SetPosition(0, center);
-                lineRenderer.SetPosition(1, hit.point);
-                lineRenderer.startWidth = 0.0003f;
-                lineRenderer.endWidth = 0.0003f;
-                distanceDisplay.GetComponentInChildren<TMP_Text>().text = $"{(hit.point - realCenter).magnitude.ToString("F2")}m";
-                // }
-            } else {
-                HideDistanceDisplay();
-            }
-        }*/
 
         private void CreateNewLineSketchObject() {
             if (!worldAnchor) {
