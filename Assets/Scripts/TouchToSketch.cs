@@ -98,6 +98,7 @@ namespace Sketching {
                     if (hit.collider.gameObject.layer != 6 && hit.collider.gameObject.layer != 2) {
                         hitObject = true;
                         Brush.transform.localPosition = hit.point;
+                        //TDOD: brush not visible????
                         Vector3 center = Camera.main.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0f));
                         distanceDisplay.GetComponentInChildren<TMP_Text>().text = $"{(hit.point - center).magnitude.ToString("F2")}m";
                     }
@@ -108,12 +109,10 @@ namespace Sketching {
                 }
             }
 
+            //handle touch input
             if (Input.touchCount > 0 && !Eraser.IsEnabled) {
                 Touch currentTouch = Input.GetTouch(0);
-                if (currentTouch.phase == TouchPhase.Began) {
-                    isValidTouch = Helpers.IsValidTouch(currentTouch);
-                }
-
+                if (currentTouch.phase == TouchPhase.Began) isValidTouch = Helpers.IsValidTouch(currentTouch);
                 if (isValidTouch) {
                     if (currentTouch.phase == TouchPhase.Began) {
                         startNewSketchObject = true;
@@ -130,7 +129,19 @@ namespace Sketching {
                             else ray = Camera.main.ScreenPointToRay(new Vector3(currentTouch.position.x, currentTouch.position.y, 0f));
 
                             //if extending an existing line, raycast from brush position, set anchorNull and start drawing from that hitpoint
-                            if (connectActive) {
+                            if (canvasActive && !startedOnCanvas) {
+                                //detect where if a sketch is started on a canvas
+                                RaycastHit[] hits = Physics.RaycastAll(ray);
+                                int i = 0;
+                                while (i < hits.Length) {
+                                    if (hits[i].collider.gameObject.layer == 6) {
+                                        startedOnCanvas = true;
+                                        break;
+                                    }
+                                    i++;
+                                }
+                            }
+                            if (connectActive && !startedOnCanvas) {
                                 RaycastHit hit;
                                 if (Physics.Raycast(ray, out hit)) {
                                     //only continue if the hit object is not a canvas and not the brush
@@ -147,84 +158,56 @@ namespace Sketching {
                                         Brush.GetComponent<Renderer>().enabled = false;
                                     }
                                 }
-                            } else if (canvasActive && !startedOnCanvas) {
-                                //detect where if a sketch is started on a canvas
-                                RaycastHit[] hits = Physics.RaycastAll(ray);
-                                int i = 0;
-                                while (i < hits.Length) {
-                                    if (hits[i].collider.gameObject.layer == 6) {
-                                        startedOnCanvas = true;
-                                        break;
-                                    }
-                                    i++;
-                                }
                             }
                         } else if (currentLineSketchObject) {
                             /* - - - - - - - - - - - - - - - - - - */
                             /* - - - - - CONTINUE A LINE - - - - - */
                             /* - - - - - - - - - - - - - - - - - - */
-                            if (!markerActive) {
-                                if (connectActive && usingRelativePosition && relativeBrushDistance > 0) {
-                                    //update relativeBrush with current touch position
-                                    var touchPos = Camera.main.ScreenToWorldPoint(new Vector3(currentTouch.position.x, currentTouch.position.y, relativeBrushDistance));
-                                    new AddControlPointContinuousCommand(currentLineSketchObject, touchPos).Execute();
-                                } else {
-                                    bool drawingOnCanvas = false;
-                                    if (canvasActive && startedOnCanvas) {
-                                        //draw on canvas using touch position
-                                        Ray ray = Camera.main.ScreenPointToRay(new Vector3(currentTouch.position.x, currentTouch.position.y, 0f));
-                                        RaycastHit[] hits = Physics.RaycastAll(ray);
-                                        int i = 0;
-                                        while (i < hits.Length) {
-                                            if (hits[i].collider.gameObject.layer == 6) {
-                                                drawingOnCanvas = true;
-                                                new AddControlPointContinuousCommand(currentLineSketchObject, hits[i].point).Execute();
-                                                break;
-                                            }
-                                            i++;
-                                        }
-                                        if (!drawingOnCanvas) {
-                                            // if (startedOnCanvas) startNewSketchObject = true;
-                                            FinishSketch();
-                                            startNewSketchObject = true;
-                                            currentLineSketchObject = null;
-                                        }
+                            bool drawingOnCanvas = false;
+                            if (canvasActive && startedOnCanvas) {
+                                //CHECK FOR CANVAS DRAWING FIRST
+                                Ray ray;
+                                if (markerActive) ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+                                else ray = Camera.main.ScreenPointToRay(new Vector3(currentTouch.position.x, currentTouch.position.y, 0f));
+
+                                RaycastHit[] hits = Physics.RaycastAll(ray);
+                                int i = 0;
+                                while (i < hits.Length) {
+                                    if (hits[i].collider.gameObject.layer == 6) {
+                                        drawingOnCanvas = true;
+                                        //draw on canvas using brush or touch position
+                                        new AddControlPointContinuousCommand(currentLineSketchObject, hits[i].point).Execute();
+                                        break;
                                     }
-                                    if (!drawingOnCanvas && currentLineSketchObject) {
-                                        //draw at current absolute touch position
-                                        var touchPos = Camera.main.ScreenToWorldPoint(new Vector3(currentTouch.position.x, currentTouch.position.y, defaultBrushDistance));
+                                    i++;
+                                }
+                                if (!drawingOnCanvas) {
+                                    FinishSketch();
+                                    startNewSketchObject = true;
+                                    currentLineSketchObject = null;
+                                }
+                            }
+                            if (!drawingOnCanvas && currentLineSketchObject && connectActive && usingRelativePosition) {
+                                //CHECK FOR CONNECT DRAWING
+                                if (connectActive && usingRelativePosition) {
+                                    if (markerActive && relativeBrushDistance > 0) {
+                                        //draw at relative brush position
+                                        new AddControlPointContinuousCommand(currentLineSketchObject, relativeBrush.transform.position).Execute();
+                                    } else {
+                                        //draw at relative brush position using current touch position
+                                        var touchPos = Camera.main.ScreenToWorldPoint(new Vector3(currentTouch.position.x, currentTouch.position.y, relativeBrushDistance));
                                         new AddControlPointContinuousCommand(currentLineSketchObject, touchPos).Execute();
                                     }
                                 }
-                            } else if (markerActive) {
-                                if (connectActive && usingRelativePosition) {
-                                    //draw at relative brush pos
-                                    new AddControlPointContinuousCommand(currentLineSketchObject, relativeBrush.transform.position).Execute();
+                            } else if (!drawingOnCanvas && currentLineSketchObject) {
+                                //CHECK FOR FREEHAND DRAWING
+                                if (markerActive) {
+                                    //draw at current absolute brush position
+                                    new AddControlPointContinuousCommand(currentLineSketchObject, Brush.transform.position).Execute();
                                 } else {
-                                    bool drawingOnCanvas = false;
-                                    if (canvasActive && startedOnCanvas) {
-                                        //draw on canvas using brush position
-                                        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-                                        RaycastHit[] hits = Physics.RaycastAll(ray);
-                                        int i = 0;
-                                        while (i < hits.Length) {
-                                            if (hits[i].collider.gameObject.layer == 6) {
-                                                drawingOnCanvas = true;
-                                                new AddControlPointContinuousCommand(currentLineSketchObject, hits[i].point).Execute();
-                                                break;
-                                            }
-                                            i++;
-                                        }
-                                        if (!drawingOnCanvas) {
-                                            FinishSketch();
-                                            startNewSketchObject = true;
-                                            currentLineSketchObject = null;
-                                        }
-                                    }
-                                    if (!drawingOnCanvas && currentLineSketchObject) {
-                                        //draw at current absolute brush position
-                                        new AddControlPointContinuousCommand(currentLineSketchObject, Brush.transform.position).Execute();
-                                    }
+                                    //draw at current absolute touch position
+                                    var touchPos = Camera.main.ScreenToWorldPoint(new Vector3(currentTouch.position.x, currentTouch.position.y, defaultBrushDistance));
+                                    new AddControlPointContinuousCommand(currentLineSketchObject, touchPos).Execute();
                                 }
                             }
                         }
@@ -322,6 +305,7 @@ namespace Sketching {
                 toggleMarkerButton.GetComponent<Image>().color = Color.white;
                 markerActive = false;
                 Brush.GetComponent<Renderer>().enabled = false;
+                HideDistanceDisplay();
             } else {
                 toggleMarkerButton.GetComponent<Image>().color = Color.green;
                 markerActive = true;
