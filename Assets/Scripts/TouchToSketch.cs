@@ -53,7 +53,6 @@ namespace Sketching {
         private bool connectActive = false;
 
 
-
         private LineRenderer lineRenderer;
         private GameObject distanceDisplay;
 
@@ -66,12 +65,13 @@ namespace Sketching {
 
         private bool startedOnCanvas = false;
 
-        private float brushDistance = 0.2f;
+        private float defaultBrushDistance = 0.15f;
+        private float relativeBrushDistance;
 
         public void Start() {
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             Brush.transform.SetParent(Camera.transform);
-            Brush.transform.localPosition = Vector3.forward * brushDistance;
+            Brush.transform.localPosition = Vector3.forward * defaultBrushDistance;
             // Brush.SetActive(false);
             Brush.GetComponent<Renderer>().enabled = false;
 
@@ -88,20 +88,7 @@ namespace Sketching {
         }
 
         public void Update() {
-            // if (currentProxyAnchorNull && relativeBrush && Brush.activeSelf) {
-            if (currentProxyAnchorNull && relativeBrush) {
-                //update proxyAnchorBrush relative position
-                //get camera position relative to hitpoint origin
-                if (markerActive) {
-                    Vector3 relativeCameraPos = getRelativePosition(currentProxyAnchorNull.transform, Brush.transform.position);
-                    relativeBrush.transform.position = relativeCameraPos;
-                } else {
-                    //TODO:
-                    Vector3 relativeCameraPos = getRelativePosition(currentProxyAnchorNull.transform, Brush.transform.position);
-                    relativeBrush.transform.position = relativeCameraPos;
-                }
-            }
-
+            //DISTANCE DISPLAY
             // if (connectActive && markerActive && !currentLineSketchObject) {
             //     Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
             //     RaycastHit hit;
@@ -137,44 +124,36 @@ namespace Sketching {
                         startNewSketchObject = true;
                     } else if (currentTouch.phase == TouchPhase.Stationary || currentTouch.phase == TouchPhase.Moved) {
                         if (startNewSketchObject) {
-                            //START NEW LINE
+                            /* - - - - - - - - - - - - - - - - - - - */
+                            /* - - - - - START A  NEW LINE - - - - - */
+                            /* - - - - - - - - - - - - - - - - - - - */
                             CreateNewLineSketchObject();
                             startNewSketchObject = false;
 
-                            //if extending an existing line, raycast from brush position, set anchorNull and start drawing from that hitpoint
                             Ray ray;
-                            if (markerActive) {
-                                ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
-                            } else {
-                                ray = Camera.main.ScreenPointToRay(new Vector3(currentTouch.position.x, currentTouch.position.y, 0f));
-                            }
+                            if (markerActive) ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
+                            else ray = Camera.main.ScreenPointToRay(new Vector3(currentTouch.position.x, currentTouch.position.y, 0f));
+
+                            //if extending an existing line, raycast from brush position, set anchorNull and start drawing from that hitpoint
                             if (connectActive) {
                                 RaycastHit hit;
-
-                                Camera.transform.parent = null;
                                 if (Physics.Raycast(ray, out hit)) {
-                                    //only continue if the hit object is not a canvas
-                                    if (hit.collider.gameObject.layer != 6) {
-                                        //point where the user is starting a new sketch
-                                        currentHitpoint = new GameObject();
-                                        currentHitpoint.transform.position = hit.point;
-
+                                    //only continue if the hit object is not a canvas and not the brush
+                                    if (hit.collider.gameObject.layer != 6 && hit.collider.gameObject.layer != 2) {
                                         currentLineSketchObject.transform.position = hit.point;
 
-                                        //null, new "origin" at hitpoint
-                                        currentProxyAnchorNull = new GameObject();
-                                        currentProxyAnchorNull.transform.position = Brush.transform.position;
-                                        // currentProxyAnchorNull.transform.position = Camera.transform.position;
-
-                                        //brush from where new lines are drawn
+                                        //instantiate relative brush and make child of camera
                                         relativeBrush = Instantiate(Brush, hit.point, Quaternion.identity);
-                                        relativeBrush.transform.SetParent(currentHitpoint.transform);
-                                        // Brush.SetActive(false);
+                                        relativeBrush.transform.SetParent(Camera.transform);
+
+                                        relativeBrushDistance = Vector3.Distance(Camera.transform.position, relativeBrush.transform.position);
+
                                         usingRelativePosition = true;
                                         Brush.GetComponent<Renderer>().enabled = false;
                                     }
                                 }
                             } else if (canvasActive && !startedOnCanvas) {
+                                //detect where if a sketch is started on a canvas
                                 RaycastHit[] hits = Physics.RaycastAll(ray);
                                 int i = 0;
                                 while (i < hits.Length) {
@@ -186,11 +165,14 @@ namespace Sketching {
                                 }
                             }
                         } else if (currentLineSketchObject) {
-                            //CONTINUE A LINE
+                            /* - - - - - - - - - - - - - - - - - - */
+                            /* - - - - - CONTINUE A LINE - - - - - */
+                            /* - - - - - - - - - - - - - - - - - - */
                             if (!markerActive) {
-                                if (connectActive && usingRelativePosition) {
-                                    //draw at relative brush pos
-                                    new AddControlPointContinuousCommand(currentLineSketchObject, relativeBrush.transform.position).Execute();
+                                if (connectActive && usingRelativePosition && relativeBrushDistance > 0) {
+                                    //update relativeBrush with current touch position
+                                    var touchPos = Camera.main.ScreenToWorldPoint(new Vector3(currentTouch.position.x, currentTouch.position.y, relativeBrushDistance));
+                                    new AddControlPointContinuousCommand(currentLineSketchObject, touchPos).Execute();
                                 } else {
                                     bool drawingOnCanvas = false;
                                     if (canvasActive && startedOnCanvas) {
@@ -215,7 +197,7 @@ namespace Sketching {
                                     }
                                     if (!drawingOnCanvas && currentLineSketchObject) {
                                         //draw at current absolute touch position
-                                        var touchPos = Camera.main.ScreenToWorldPoint(new Vector3(currentTouch.position.x, currentTouch.position.y, brushDistance));
+                                        var touchPos = Camera.main.ScreenToWorldPoint(new Vector3(currentTouch.position.x, currentTouch.position.y, defaultBrushDistance));
                                         new AddControlPointContinuousCommand(currentLineSketchObject, touchPos).Execute();
                                     }
                                 }
@@ -230,7 +212,6 @@ namespace Sketching {
                                         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
                                         RaycastHit[] hits = Physics.RaycastAll(ray);
                                         int i = 0;
-                                        // bool wentOffCanvas = false;
                                         while (i < hits.Length) {
                                             if (hits[i].collider.gameObject.layer == 6) {
                                                 drawingOnCanvas = true;
@@ -240,7 +221,6 @@ namespace Sketching {
                                             i++;
                                         }
                                         if (!drawingOnCanvas) {
-                                            // if (startedOnCanvas) startNewSketchObject = true;
                                             FinishSketch();
                                             startNewSketchObject = true;
                                             currentLineSketchObject = null;
@@ -257,7 +237,6 @@ namespace Sketching {
                         FinishSketch();
                         isValidTouch = false;
                         startedOnCanvas = false;
-
                     }
                 }
             }
@@ -272,6 +251,7 @@ namespace Sketching {
 
             PostProcessSketchObject();
 
+            relativeBrushDistance = -1;
             usingRelativePosition = false;
             if (markerActive) Brush.GetComponent<Renderer>().enabled = true;
             Destroy(relativeBrush);
@@ -353,19 +333,13 @@ namespace Sketching {
             SketchWorld.transform.rotation = new Quaternion();
         }
 
-        // private void ResetBrush() {
-        //     Destroy(currentProxyAnchorBrush);
-        //     if (drawingMode == DrawingMode.Air) Brush.SetActive(true);
-        //     continueOnSameAnchor = false;
-        // }
-
         private void HideDistanceDisplay() {
             lineRenderer.gameObject.SetActive(false);
             distanceDisplay.GetComponentInChildren<TMP_Text>().text = "";
         }
 
         public void SetCanvas() {
-            //set proxy anchor to current BrushMarker position
+            //set proxy anchor to current brush position
             if (currentCanvas == null) {
                 currentCanvas = Instantiate(CanvasPrefab, Brush.transform.position, Brush.transform.rotation);
                 // Debug.Log($"PROXY ANCHOR CREATED AT {currentProxyAnchor.transform.position.ToString()}");
