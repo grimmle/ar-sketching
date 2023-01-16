@@ -4,9 +4,7 @@
 namespace Sketching {
     using UnityEngine;
     using TMPro;
-    using UnityEngine.EventSystems;
     using UnityEngine.XR.ARFoundation;
-    using System.Collections.Generic;
     using VRSketchingGeometry.SketchObjectManagement;
     using VRSketchingGeometry.Commands;
     using VRSketchingGeometry.Commands.Line;
@@ -14,44 +12,38 @@ namespace Sketching {
     using VRSketchingGeometry;
     using UnityEngine.UI;
 
-    public enum DrawingMode { Display, Air }
-
     public class TouchToSketch : MonoBehaviour {
         public Camera Camera;
         public SketchWorld SketchWorld;
         public GameObject SketchObjectPrefab;
         public DefaultReferences Defaults;
+        private GameObject UI;
 
-        //indicator for where new lines are drawn from
+        [Tooltip("Visualization of the brush.")]
         public GameObject Brush;
+        private float defaultBrushDistance = 0.15f;
+        private float relativeBrushDistance;
 
         [Tooltip("Visualization of the canvas.")]
         public GameObject CanvasPrefab = null;
+        //currently placed canvas
         private GameObject currentCanvas;
-        // private Plane currentCanvasPlane;
 
-        //hit point
-        private GameObject currentHitpoint;
         //brush at current plane hit point
         private GameObject relativeBrush;
-        //null parented to camera movement
-        private GameObject currentProxyAnchorNull;
-        //for relative air drawing, keep relative position in between touch inputs
-        private bool continueOnSameAnchor;
         //drawing relative to the actual device position
         private bool usingRelativePosition = false;
 
-        //tools
+        //TOOLS
         private GameObject toggleMarkerButton;
         private bool markerActive = false;
 
-        private GameObject setCanvasButton;
         private GameObject toggleCanvasButton;
         private bool canvasActive = false;
+        private GameObject setCanvasButton;
 
         private GameObject toggleConnectButton;
         private bool connectActive = false;
-
 
         private LineRenderer lineRenderer;
         private GameObject distanceDisplay;
@@ -62,17 +54,12 @@ namespace Sketching {
 
         private bool isValidTouch = false;
         private bool startNewSketchObject = false;
-
         private bool startedOnCanvas = false;
-
-        private float defaultBrushDistance = 0.15f;
-        private float relativeBrushDistance;
 
         public void Start() {
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             Brush.transform.SetParent(Camera.transform);
             Brush.transform.localPosition = Vector3.forward * defaultBrushDistance;
-            // Brush.SetActive(false);
             Brush.GetComponent<Renderer>().enabled = false;
 
             invoker = GameObject.Find("Main").GetComponent<GlobalCommandInvoker>().invoker;
@@ -80,6 +67,7 @@ namespace Sketching {
             distanceDisplay = GameObject.Find("Distance Display");
             lineRenderer.gameObject.SetActive(false);
 
+            UI = GameObject.Find("Canvas");
             toggleMarkerButton = GameObject.Find("Toggle Marker Tool");
             toggleCanvasButton = GameObject.Find("Toggle Canvas Tool");
             toggleConnectButton = GameObject.Find("Toggle Connect Tool");
@@ -88,6 +76,8 @@ namespace Sketching {
         }
 
         public void Update() {
+            UI.GetComponent<CanvasGroup>().alpha = 1;
+
             //show distance to existing lines when using marker & connect tools
             if (markerActive && connectActive && !isValidTouch) {
                 Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
@@ -116,6 +106,8 @@ namespace Sketching {
                 Touch currentTouch = Input.GetTouch(0);
                 if (currentTouch.phase == TouchPhase.Began) isValidTouch = Helpers.IsValidTouch(currentTouch);
                 if (isValidTouch) {
+                    // reduce UI opacity for better visibility
+                    UI.GetComponent<CanvasGroup>().alpha = 0.3f;
                     if (currentTouch.phase == TouchPhase.Began) {
                         startNewSketchObject = true;
                     } else if (currentTouch.phase == TouchPhase.Stationary || currentTouch.phase == TouchPhase.Moved) {
