@@ -247,11 +247,11 @@ namespace Sketching {
             newMat.color = ColorMenu.CurrentColor;
             renderer.material.color = ColorMenu.CurrentColor;
             currentLineSketchObject = gameObject.GetComponent<LineSketchObject>();
-            currentLineSketchObject.minimumControlPointDistance = .01f;
+            currentLineSketchObject.minimumControlPointDistance = .025f;
             LineBrush brush = currentLineSketchObject.GetBrush() as LineBrush;
             brush.SketchMaterial = new SketchMaterialData(newMat);
             brush.CrossSectionScale = DiameterMenu.CurrentDiameter;
-            brush.InterpolationSteps = 5;
+            brush.InterpolationSteps = 8;
             currentLineSketchObject.SetBrush(brush);
         }
 
