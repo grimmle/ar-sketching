@@ -95,9 +95,7 @@ namespace Sketching {
                 }
                 if (!hitObject) {
                     HideDistanceDisplay();
-                    Brush.transform.position = new Vector3(0, 0, 0);
-                    Brush.transform.SetParent(Camera.transform);
-                    Brush.transform.localPosition = new Vector3(0, 0, defaultBrushDistance);
+                    ResetBrush();
                 }
             }
 
@@ -170,6 +168,8 @@ namespace Sketching {
                                     if (hits[i].collider.gameObject.layer == 6) {
                                         drawingOnCanvas = true;
                                         //draw on canvas using brush or touch position
+                                        HideDistanceDisplay();
+                                        ResetBrush();
                                         new AddControlPointContinuousCommand(currentLineSketchObject, hits[i].point).Execute();
                                         break;
                                     }
@@ -272,6 +272,12 @@ namespace Sketching {
             //reset SketchWorld transform
             SketchWorld.transform.position = new Vector3(0, 0, 0);
             SketchWorld.transform.rotation = new Quaternion();
+        }
+
+        private void ResetBrush() {
+            Brush.transform.position = new Vector3(0, 0, 0);
+            Brush.transform.SetParent(Camera.transform);
+            Brush.transform.localPosition = new Vector3(0, 0, defaultBrushDistance);
         }
 
         private void HideDistanceDisplay() {
