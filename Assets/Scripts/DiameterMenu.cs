@@ -34,9 +34,9 @@ public class DiameterMenu : MonoBehaviour {
         options = GameObject.Find("Diameter Options");
         currentDiameterText = GameObject.Find("Current Diameter").GetComponent<TMP_Text>();
 
-        //default diameter is Medium
-        currentDiameterText.text = "M";
-        CurrentDiameter = diameters["M"];
+        //default diameter is XS
+        currentDiameterText.text = "XS";
+        CurrentDiameter = diameters["XS"];
 
         foreach (string title in diameters.Keys) {
             var btn = Instantiate(DiameterButton);
