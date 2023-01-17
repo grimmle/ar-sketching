@@ -73,7 +73,6 @@ public class ButtonHandler : MonoBehaviour {
         UI.transform.Find("Help Center").GetComponent<CanvasGroup>().interactable = true;
         UI.transform.Find("Help Center").GetComponent<CanvasGroup>().blocksRaycasts = true;
         UI.transform.Find("Help Center").GetComponent<CanvasGroup>().alpha = 1;
-        // TODO
     }
     public void CloseHelpMenu() {
         //show other UI
@@ -85,7 +84,6 @@ public class ButtonHandler : MonoBehaviour {
         UI.transform.Find("Help Center").GetComponent<CanvasGroup>().interactable = false;
         UI.transform.Find("Help Center").GetComponent<CanvasGroup>().blocksRaycasts = false;
         UI.transform.Find("Help Center").GetComponent<CanvasGroup>().alpha = 0;
-        // TODO
     }
 
     public void ToggleEraser() {

@@ -74,7 +74,7 @@ namespace Sketching {
             toggleMarkerButton = GameObject.Find("Toggle Marker Tool");
             toggleCanvasButton = GameObject.Find("Toggle Canvas Tool");
             toggleConnectButton = GameObject.Find("Toggle Connect Tool");
-            setCanvasButton = GameObject.Find("Place Canvas");
+            setCanvasButton = GameObject.Find("Place Canvas Button");
             setCanvasButton.SetActive(false);
         }
 
