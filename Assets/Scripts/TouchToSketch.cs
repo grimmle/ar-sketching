@@ -23,6 +23,9 @@ namespace Sketching {
         public GameObject Brush;
         private float defaultBrushDistance = 0.15f;
         private float relativeBrushDistance;
+        private float minimumControlPointDistance = 0.0125f;
+        private int interpolationSteps = 8;
+        private int maxLineLength = 15;
 
         [Tooltip("Visualization of the canvas.")]
         public GameObject CanvasPrefab = null;
@@ -152,6 +155,17 @@ namespace Sketching {
                                 }
                             }
                         } else if (currentLineSketchObject) {
+                            if (currentLineSketchObject.getNumberOfControlPoints() > maxLineLength / (minimumControlPointDistance * 10)) {
+                                //break up line into multiple pieces when it reaches 15m (maxLineLength)
+                                //this is to avoid filling up memory with control points
+                                //which ultimately leads to the app crashing
+
+                                //TODO: connect control points of all parts
+                                //to one object again when actually finishing the sketch
+                                FinishSketch();
+                                startNewSketchObject = true;
+                                currentLineSketchObject = null;
+                            }
                             /* - - - - - - - - - - - - - - - - - - */
                             /* - - - - - CONTINUE A LINE - - - - - */
                             /* - - - - - - - - - - - - - - - - - - */
@@ -247,11 +261,11 @@ namespace Sketching {
             newMat.color = ColorMenu.CurrentColor;
             renderer.material.color = ColorMenu.CurrentColor;
             currentLineSketchObject = gameObject.GetComponent<LineSketchObject>();
-            currentLineSketchObject.minimumControlPointDistance = .0125f;
+            currentLineSketchObject.minimumControlPointDistance = minimumControlPointDistance;
             LineBrush brush = currentLineSketchObject.GetBrush() as LineBrush;
             brush.SketchMaterial = new SketchMaterialData(newMat);
             brush.CrossSectionScale = DiameterMenu.CurrentDiameter;
-            brush.InterpolationSteps = 8;
+            brush.InterpolationSteps = interpolationSteps;
             currentLineSketchObject.SetBrush(brush);
         }
 
