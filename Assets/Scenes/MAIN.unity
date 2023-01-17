@@ -6573,7 +6573,7 @@ GameObject:
   - component: {fileID: 1177007619}
   - component: {fileID: 1177007618}
   m_Layer: 5
-  m_Name: Redo Sprite
+  m_Name: Redo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6943,7 +6943,7 @@ GameObject:
   - component: {fileID: 1283644568}
   - component: {fileID: 1283644567}
   m_Layer: 5
-  m_Name: Eraser Button
+  m_Name: Eraser
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10172,7 +10172,7 @@ GameObject:
   - component: {fileID: 1815159583}
   - component: {fileID: 1815159582}
   m_Layer: 5
-  m_Name: Open Menu Button
+  m_Name: Open Menu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10443,7 +10443,7 @@ GameObject:
   - component: {fileID: 1936947853}
   - component: {fileID: 1936947852}
   m_Layer: 5
-  m_Name: Undo Sprite
+  m_Name: Undo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10740,7 +10740,7 @@ GameObject:
   - component: {fileID: 1950565915}
   - component: {fileID: 1950565914}
   m_Layer: 5
-  m_Name: Open Menu Button
+  m_Name: Open Menu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
