@@ -48,4 +48,7 @@ public class PageSwiper : MonoBehaviour, IDragHandler, IEndDragHandler {
             yield return null;
         }
     }
+    public int getCurrentPage() {
+        return currentPage;
+    }
 }
