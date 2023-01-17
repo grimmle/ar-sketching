@@ -48,7 +48,6 @@ namespace Sketching {
         private GameObject toggleConnectButton;
         private bool connectActive = false;
 
-        private LineRenderer lineRenderer;
         private GameObject distanceDisplay;
 
         private ARAnchor worldAnchor;
@@ -66,11 +65,9 @@ namespace Sketching {
             Brush.GetComponent<Renderer>().enabled = false;
 
             invoker = GameObject.Find("Main").GetComponent<GlobalCommandInvoker>().invoker;
-            lineRenderer = GameObject.Find("Line").GetComponent<LineRenderer>();
-            distanceDisplay = GameObject.Find("Distance Display");
-            lineRenderer.gameObject.SetActive(false);
 
             UI = GameObject.Find("UI");
+            distanceDisplay = GameObject.Find("Distance Display");
             toggleMarkerButton = GameObject.Find("Toggle Marker Tool");
             toggleCanvasButton = GameObject.Find("Toggle Canvas Tool");
             toggleConnectButton = GameObject.Find("Toggle Connect Tool");
@@ -295,7 +292,6 @@ namespace Sketching {
         }
 
         private void HideDistanceDisplay() {
-            lineRenderer.gameObject.SetActive(false);
             distanceDisplay.GetComponentInChildren<TMP_Text>().text = "";
         }
 
@@ -303,14 +299,11 @@ namespace Sketching {
             //set proxy anchor to current brush position
             if (currentCanvas == null) {
                 currentCanvas = Instantiate(CanvasPrefab, Brush.transform.position, Brush.transform.rotation);
-                // Debug.Log($"PROXY ANCHOR CREATED AT {currentProxyAnchor.transform.position.ToString()}");
             } else {
                 currentCanvas.transform.position = Brush.transform.position;
-                // Debug.Log($"PROXY ANCHOR MOVED TO {BrushMarker.transform.position.ToString()}");
             }
             currentCanvas.transform.LookAt(Camera.transform.position);
             usingRelativePosition = true;
-            // ResetBrush();
             distanceDisplay.GetComponentInChildren<TMP_Text>().text = "";
         }
 
@@ -345,11 +338,9 @@ namespace Sketching {
             if (connectActive) {
                 toggleConnectButton.GetComponent<Image>().color = Color.white;
                 connectActive = false;
-                lineRenderer.gameObject.SetActive(false);
             } else {
                 toggleConnectButton.GetComponent<Image>().color = Color.green;
                 connectActive = true;
-                lineRenderer.gameObject.SetActive(true);
             }
         }
 
