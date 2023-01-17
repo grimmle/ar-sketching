@@ -67,7 +67,7 @@ namespace Sketching {
             distanceDisplay = GameObject.Find("Distance Display");
             lineRenderer.gameObject.SetActive(false);
 
-            UI = GameObject.Find("Canvas");
+            UI = GameObject.Find("UI");
             toggleMarkerButton = GameObject.Find("Toggle Marker Tool");
             toggleCanvasButton = GameObject.Find("Toggle Canvas Tool");
             toggleConnectButton = GameObject.Find("Toggle Connect Tool");
@@ -247,7 +247,7 @@ namespace Sketching {
             newMat.color = ColorMenu.CurrentColor;
             renderer.material.color = ColorMenu.CurrentColor;
             currentLineSketchObject = gameObject.GetComponent<LineSketchObject>();
-            currentLineSketchObject.minimumControlPointDistance = .025f;
+            currentLineSketchObject.minimumControlPointDistance = .0125f;
             LineBrush brush = currentLineSketchObject.GetBrush() as LineBrush;
             brush.SketchMaterial = new SketchMaterialData(newMat);
             brush.CrossSectionScale = DiameterMenu.CurrentDiameter;
