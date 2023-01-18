@@ -7,10 +7,12 @@ using VRSketchingGeometry.SketchObjectManagement;
 using VRSketchingGeometry.Commands;
 
 public class ButtonHandler : MonoBehaviour {
-    TouchAndHoldToSketch TouchAndHoldToSketchScript;
+    TouchToSketch TouchAndHoldToSketchScript;
     ColorMenu ColorMenuScript;
     DiameterMenu DiameterMenuScript;
     Eraser EraserScript;
+
+    private GameObject UI;
 
     public SketchWorld SketchWorld;
     public DefaultReferences Defaults;
@@ -20,14 +22,17 @@ public class ButtonHandler : MonoBehaviour {
 
     private string savePath;
 
+    public GameObject resetSceneButton;
+
     void Start() {
-        TouchAndHoldToSketchScript = GameObject.Find("Main").GetComponent<TouchAndHoldToSketch>();
+        TouchAndHoldToSketchScript = GameObject.Find("Main").GetComponent<TouchToSketch>();
         ColorMenuScript = GameObject.Find("Main").GetComponent<ColorMenu>();
         DiameterMenuScript = GameObject.Find("Main").GetComponent<DiameterMenu>();
         EraserScript = GameObject.Find("Main").GetComponent<Eraser>();
         invoker = GameObject.Find("Main").GetComponent<GlobalCommandInvoker>().invoker;
-
         sketchWorldManager = GameObject.Find("Main").GetComponent<SketchWorldManager>();
+        UI = GameObject.Find("UI");
+        if (resetSceneButton) resetSceneButton.SetActive(false);
     }
 
     public void Save() {
@@ -45,22 +50,53 @@ public class ButtonHandler : MonoBehaviour {
         TouchAndHoldToSketchScript.ClearSketchWorld();
     }
 
-    public void ToggleAirSketchingSpace() {
-        TouchAndHoldToSketchScript.ToggleSketchingSpace();
+    public void ToggleMarker() {
+        TouchAndHoldToSketchScript.ToggleMarker();
     }
-    public void ToggleSketchingMode() {
-        TouchAndHoldToSketchScript.ToggleSketchingMode();
+    public void ToggleCanvas() {
+        TouchAndHoldToSketchScript.ToggleCanvas();
+    }
+    public void ToggleConnect() {
+        TouchAndHoldToSketchScript.ToggleConnect();
+    }
+    public void SetCanvas() {
+        TouchAndHoldToSketchScript.SetCanvas();
     }
 
-    public void SetProxyAnchorForRelativeSketching() {
-        TouchAndHoldToSketchScript.SetCanvas();
+    public void OpenHelpMenu() {
+        //hide other UI
+        UI.transform.Find("Other").GetComponent<CanvasGroup>().alpha = .3f;
+        UI.transform.Find("Other").GetComponent<CanvasGroup>().interactable = false;
+        UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().alpha = .3f;
+        UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().interactable = false;
+        //show help menu
+        UI.transform.Find("Help Center").GetComponent<CanvasGroup>().interactable = true;
+        UI.transform.Find("Help Center").GetComponent<CanvasGroup>().blocksRaycasts = true;
+        UI.transform.Find("Help Center").GetComponent<CanvasGroup>().alpha = 1;
+    }
+    public void CloseHelpMenu() {
+        //show other UI
+        UI.transform.Find("Other").GetComponent<CanvasGroup>().alpha = 1;
+        UI.transform.Find("Other").GetComponent<CanvasGroup>().interactable = true;
+        UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().alpha = 1;
+        UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().interactable = true;
+        //close help menu
+        UI.transform.Find("Help Center").GetComponent<CanvasGroup>().interactable = false;
+        UI.transform.Find("Help Center").GetComponent<CanvasGroup>().blocksRaycasts = false;
+        UI.transform.Find("Help Center").GetComponent<CanvasGroup>().alpha = 0;
     }
 
     public void ToggleEraser() {
         if (Eraser.IsEnabled) {
             EraserScript.Disable();
+            UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().alpha = 1;
+            UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().interactable = true;
+            resetSceneButton.SetActive(false);
         } else {
             EraserScript.Enable();
+            UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().alpha = .3f;
+            UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().interactable = false;
+            resetSceneButton.SetActive(true);
         }
     }
 
