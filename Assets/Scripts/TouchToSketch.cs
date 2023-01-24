@@ -283,6 +283,7 @@ namespace Sketching {
             //reset SketchWorld transform
             SketchWorld.transform.position = new Vector3(0, 0, 0);
             SketchWorld.transform.rotation = new Quaternion();
+            Destroy(currentCanvas);
         }
 
         private void ResetBrush() {

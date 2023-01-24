@@ -48,6 +48,9 @@ public class ButtonHandler : MonoBehaviour {
     }
     public void Clear() {
         TouchAndHoldToSketchScript.ClearSketchWorld();
+        UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().alpha = 1;
+        UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().interactable = true;
+        resetSceneButton.SetActive(false);
     }
 
     public void ToggleMarker() {
