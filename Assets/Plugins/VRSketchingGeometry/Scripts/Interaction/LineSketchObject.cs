@@ -60,6 +60,8 @@ namespace VRSketchingGeometry.SketchObjectManagement
 
         protected override void Awake()
         {
+            this.gameObject.name = System.Guid.NewGuid().ToString();
+
             meshFilter = GetComponent<MeshFilter>();
             meshCollider = GetComponent<MeshCollider>();
 
@@ -339,6 +341,7 @@ namespace VRSketchingGeometry.SketchObjectManagement
 
         private void SetMaterial(Material material) {
             this.meshRenderer.sharedMaterial = material;
+            this.meshRenderer.sharedMaterial.name = this.name;
             this.sphereObject.GetComponent<MeshRenderer>().sharedMaterial = material;
             originalMaterial = this.meshRenderer.sharedMaterial;
         }
