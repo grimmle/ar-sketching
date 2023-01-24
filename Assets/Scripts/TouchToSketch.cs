@@ -25,7 +25,7 @@ namespace Sketching {
         private float relativeBrushDistance;
         private float minimumControlPointDistance = 0.0125f;
         private int interpolationSteps = 8;
-        private int maxLineLength = 15;
+        private int maxControlPoints = 100;
 
         [Tooltip("Visualization of the canvas.")]
         public GameObject CanvasPrefab = null;
@@ -152,8 +152,8 @@ namespace Sketching {
                                 }
                             }
                         } else if (currentLineSketchObject) {
-                            if (currentLineSketchObject.getNumberOfControlPoints() > maxLineLength / (minimumControlPointDistance * 10)) {
-                                //break up line into multiple pieces when it reaches 15m (maxLineLength)
+                            if (currentLineSketchObject.getNumberOfControlPoints() > maxControlPoints) {
+                                //break up line into multiple pieces when it reaches maxControlPoints
                                 //this is to avoid filling up memory with control points
                                 //which ultimately leads to the app crashing
 
@@ -288,7 +288,7 @@ namespace Sketching {
 
         private void ResetBrush() {
             Brush.transform.position = new Vector3(0, 0, 0);
-            Brush.transform.SetParent(Camera.transform);
+            if(Brush.transform.parent == null) Brush.transform.SetParent(Camera.transform);
             Brush.transform.localPosition = new Vector3(0, 0, defaultBrushDistance);
         }
 
@@ -317,6 +317,7 @@ namespace Sketching {
             } else {
                 toggleMarkerButton.GetComponent<Image>().color = Color.green;
                 markerActive = true;
+                ResetBrush();
                 Brush.GetComponent<Renderer>().enabled = true;
             }
         }

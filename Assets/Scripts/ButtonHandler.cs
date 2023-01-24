@@ -48,6 +48,7 @@ public class ButtonHandler : MonoBehaviour {
     }
     public void Clear() {
         TouchAndHoldToSketchScript.ClearSketchWorld();
+        EraserScript.Disable();
         UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().alpha = 1;
         UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().interactable = true;
         resetSceneButton.SetActive(false);
@@ -94,11 +95,13 @@ public class ButtonHandler : MonoBehaviour {
             EraserScript.Disable();
             UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().alpha = 1;
             UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().interactable = true;
+            UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().blocksRaycasts = true;
             resetSceneButton.SetActive(false);
         } else {
             EraserScript.Enable();
             UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().alpha = .3f;
             UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().interactable = false;
+            UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().blocksRaycasts = false;
             resetSceneButton.SetActive(true);
         }
     }

@@ -38,14 +38,12 @@ public class Eraser : MonoBehaviour {
                 if (Helpers.IsValidTouch(currentTouch) && currentTouch.phase == TouchPhase.Began) {
                     Ray ray = Camera.main.ScreenPointToRay(new Vector3(currentTouch.position.x, currentTouch.position.y, 0f));
                     RaycastHit hit;
-                    int layerMask = ~LayerMask.GetMask("Canvas");
+                    int layerMasks = ~LayerMask.GetMask("Canvas", "Ignore Raycast");
 
-                    if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask)) {
+                    if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMasks)) {
                         Transform objectHit = hit.transform;
-                        if (hit.transform.name == "LineSketchObject(Clone)") {
-                            SketchObject line = hit.transform.gameObject.GetComponent<LineSketchObject>();
-                            DeleteHitObject(line);
-                        }
+                        SketchObject line = hit.transform.gameObject.GetComponent<LineSketchObject>();
+                        DeleteHitObject(line);
                     }
                 }
             }
