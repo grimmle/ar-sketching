@@ -268,7 +268,7 @@ namespace Sketching {
 
         //refines the latest sketch object
         private void PostProcessSketchObject() {
-            if (currentLineSketchObject != null && currentLineSketchObject.gameObject != null) {
+            if (currentLineSketchObject != null && currentLineSketchObject.gameObject != null && currentLineSketchObject.getNumberOfControlPoints() > 1) {
                 invoker.ExecuteCommand(new AddObjectToSketchWorldRootCommand(currentLineSketchObject, SketchWorld));
                 if (currentLineSketchObject.getNumberOfControlPoints() > 2) {
                     new RefineMeshCommand(currentLineSketchObject).Execute();

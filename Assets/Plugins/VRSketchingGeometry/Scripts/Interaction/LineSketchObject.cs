@@ -305,16 +305,7 @@ namespace VRSketchingGeometry.SketchObjectManagement
                 //update collider
                 meshCollider.sharedMesh = meshFilter.sharedMesh;
             }
-            else if (SplineMesh.GetNumberOfControlPoints() == 1)
-            {
-                //display sphere if there is only one control point
-                sphereObject.SetActive(true);
-                sphereObject.transform.localPosition = SplineMesh.GetControlPoints()[0];
-                //update collider
-                meshCollider.sharedMesh = null;
-            }
-            else if (SplineMesh.GetNumberOfControlPoints() == 2)
-            {
+            else if (SplineMesh.GetNumberOfControlPoints() == 1 || SplineMesh.GetNumberOfControlPoints() == 2) {
                 //display linearly interpolated segment if there are two control points
                 List<Vector3> controlPoints = SplineMesh.GetControlPoints();
                 //set the two control points
