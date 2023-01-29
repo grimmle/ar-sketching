@@ -23,9 +23,9 @@ namespace Sketching {
         public GameObject Brush;
         private float defaultBrushDistance = 0.15f;
         private float relativeBrushDistance;
-        private float minimumControlPointDistance = 0.0125f;
-        private int interpolationSteps = 8;
-        private int maxControlPoints = 100;
+        private float minimumControlPointDistance = 0.01f;
+        private int interpolationSteps = 12;
+        private int maxControlPoints = 150;
 
         [Tooltip("Visualization of the canvas.")]
         public GameObject CanvasPrefab = null;
@@ -288,7 +288,7 @@ namespace Sketching {
 
         private void ResetBrush() {
             Brush.transform.position = new Vector3(0, 0, 0);
-            if(Brush.transform.parent == null) Brush.transform.SetParent(Camera.transform);
+            if (Brush.transform.parent == null) Brush.transform.SetParent(Camera.transform);
             Brush.transform.localPosition = new Vector3(0, 0, defaultBrushDistance);
         }
 
