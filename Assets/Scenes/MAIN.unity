@@ -2571,7 +2571,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "alles l\xF6schen"
+  m_text: neue szene
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f4691f0a48c1f4d9e90efa156fa5dd94, type: 2}
   m_sharedMaterial: {fileID: 8879496359248848114, guid: f4691f0a48c1f4d9e90efa156fa5dd94,
@@ -4465,7 +4465,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "alles l\xF6schen"
+  m_text: neue szene
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f4691f0a48c1f4d9e90efa156fa5dd94, type: 2}
   m_sharedMaterial: {fileID: 8879496359248848114, guid: f4691f0a48c1f4d9e90efa156fa5dd94,
@@ -6120,7 +6120,7 @@ GameObject:
   - component: {fileID: 1051398876}
   - component: {fileID: 1051398875}
   m_Layer: 5
-  m_Name: Delete All Button
+  m_Name: Reset Scene Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6161,7 +6161,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SketchWorld: {fileID: 99777758}
   Defaults: {fileID: 11400000, guid: 80ac1fe1704d8434eac74bc2c69b9794, type: 2}
-  resetSceneButton: {fileID: 0}
+  resetSceneButton: {fileID: 1051398873}
 --- !u!114 &1051398876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6392,7 +6392,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "Dieser Modus erlaubt dir das L\xF6schen einzelner Linien. Tippe daf\xFCr
     einfach die Linien an, die du l\xF6schen m\xF6chtest.\n\nACHTUNG: Die Aktion
-    \"Alles L\xF6schen\" kann nicht r\xFCckg\xE4ngig gemacht werden."
+    \"Neue Szene\" entfernt alle Linien sowie deine platzierte Leinwand. Dies kann
+    nicht r\xFCckg\xE4ngig gemacht werden."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5ba004ddaebab4434a727b019ae272e7, type: 2}
   m_sharedMaterial: {fileID: -5724750186494050678, guid: 5ba004ddaebab4434a727b019ae272e7,
@@ -8998,7 +8999,7 @@ GameObject:
   - component: {fileID: 1588117101}
   - component: {fileID: 1588117100}
   m_Layer: 5
-  m_Name: Delete All
+  m_Name: Reset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

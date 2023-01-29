@@ -51,6 +51,7 @@ public class ButtonHandler : MonoBehaviour {
         EraserScript.Disable();
         UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().alpha = 1;
         UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().interactable = true;
+        UI.transform.Find("Non-Destructive").GetComponent<CanvasGroup>().blocksRaycasts = true;
         resetSceneButton.SetActive(false);
     }
 
